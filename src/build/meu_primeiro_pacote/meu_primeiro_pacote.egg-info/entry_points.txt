@@ -1,0 +1,5 @@
+[console_scripts]
+meu_primeiro_no = meu_primeiro_pacote.no_simples:main
+no = meu_primeiro_pacote.no_com_classe:main
+talker = meu_primeiro_pacote.talker:main
+
