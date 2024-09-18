@@ -15,7 +15,7 @@ import tf_transformations
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import random
-import math
+from math import inf
 
 class R2D2(Node):
 
@@ -144,8 +144,6 @@ class R2D2(Node):
 
         while rclpy.ok():
             rclpy.spin_once(self)
-            self.update()
-            cont += 1
 
             #PLOTAR GAUSSIANA DO ROBÔ
             if cont % 4 == 0: # a cada 4 passos, plotar em preto “b” a gaussiana da posição do robô em x (pose[0])
@@ -157,37 +155,36 @@ class R2D2(Node):
             ax.plot(x, y, color="b")
             plt.pause(0.1)
             leitura = self.laser
+            self.update()
             
             if controle == 1:
                 self.sigma_movimento = self.sigma_movimento + 0.002 # se movimento reto, aumenta a incerteza da posição em 0.002
                 
             if leitura[72] == inf and leitura[108] == inf: # se a leitura indicar em frente a uma porta
-                left.setVelocity(0)
-                right.setVelocity(0)
+                self.parar
 
-                media_nova = (mapa[porta]*sigma_movimento + pose[0]*sigma_lidar) / (sigma_movimento+sigma_lidar)
-                sigma_novo = 1 / (1/sigma_movimento + 1/sigma_lidar)
-                pose[0] = media_nova # a nova posição x do robô
-                sigma_movimento = sigma_novo # novo erro gaussiano do robô
+                media_nova = (self.mapa[porta]*self.sigma_movimento + self.pose[0]*self.sigma_lidar) / (self.sigma_movimento+self.sigma_lidar)
+                sigma_novo = 1 / (1/self.sigma_movimento + 1/self.sigma_lidar)
+                self.pose[0] = media_nova # a nova posição x do robô
+                self.sigma_movimento = sigma_novo # novo erro gaussiano do robô
 
-                for i in range(len(x)): y2[i] = gaussian(x[i], mapa[porta], sigma_lidar)
-                    ax.plot(x, y2, color="r")
-                    plt.pause(0.1) # plota em vermelho “r” a gaussiana da leitura do laser com relação à porta
-                    robot.step(3000)
+                for i in range(len(x)): y2[i] = self.gaussian(x[i], self.mapa[porta], self.sigma_lidar)
+                ax.plot(x, y2, color="r")
+                plt.pause(0.1) # plota em vermelho “r” a gaussiana da leitura do laser com relação à porta
+                rclpy.spin_once(self, timeout_sec=3.0)
 
-                    for i in range(len(x)): y3[i] = gaussian(x[i], media_nova, sigma_novo)
-                        ax.plot(x, y3, color="g")
-                        plt.pause(0.1) # plota em verde “g” a gaussiana nova após interpolação das duas gaussianas.
-                        robot.step(3000)
-                        left.setVelocity(4)
-                        right.setVelocity(4)
+                for i in range(len(x)): y3[i] = self.gaussian(x[i], media_nova, sigma_novo)
+                ax.plot(x, y3, color="g")
+                plt.pause(0.1) # plota em verde “g” a gaussiana nova após interpolação das duas gaussianas.
+                rclpy.spin_once(self, timeout_sec=3.0)
+                self.ir_para_frente
 
                 if porta == 0: porta = 1 # altera para a próxima porta 0 → 1 ; 1 → 2
                 elif porta == 1: porta = 2
 
-                robot.step(1000)
+                rclpy.spin_once(self, timeout_sec=1.0)
 
-                cont += 1
+            cont += 1
 
     def run(self):
          
