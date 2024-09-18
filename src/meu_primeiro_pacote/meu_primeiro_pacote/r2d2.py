@@ -15,6 +15,7 @@ import tf_transformations
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import random
+import math
 
 class R2D2(Node):
 
@@ -104,15 +105,15 @@ class R2D2(Node):
 
     # update function
     def update(self):
-        self.medidas[0] = left_yaw       #left_encoder.getValue()
-        self.medidas[1] = right_yaw      #right_encoder.getValue()
+        self.medidas[0] = self.left_yaw       #left_encoder.getValue()
+        self.medidas[1] = self.right_yaw      #right_encoder.getValue()
         diff = self.medidas[0] - self.ultimas_medidas[0] # conta quanto a roda LEFT girou desde a última medida (rad)
         self.distancias[0] = diff * self.raio + random.normal(0,0.002) # determina distância percorrida em metros e adiciona umpequeno erro
         self.ultimas_medidas[0] = self.medidas[0]
         diff = self.medidas[1] - self.ultimas_medidas[1] # conta quanto a roda LEFT girou desde a última medida (rad)
         self.distancias[1] = diff * self.raio + random.normal(0,0.002) # determina distância percorrida em metros + pequeno erro
         self.ultimas_medidas[1] = self.medidas[1]
-        
+
         # ## cálculo da dist linear e angular percorrida no timestep
         deltaS = (self.distancias[0] + self.distancias[1]) / 2.0
         deltaTheta = (self.distancias[1] - self.distancias[0]) / self.distancia_rodas
@@ -140,20 +141,53 @@ class R2D2(Node):
         controle = 0
         cont = 0
         porta = 0 # robô começa em frente antes da porta 0
-        while robot.step(timestep) != -1:
 
-        #PLOTAR GAUSSIANA DO ROBÔ
-        if cont % 4 == 0: # a cada 4 passos, plotar em preto “b” a gaussiana da posição do robô em
-        x (pose[0])
-        for i in range(len(x)):
-        y[i] = gaussian(x[i], pose[0], sigma_movimento)
-        ax.clear()
-        ax.set_ylim([0, 4])
-        ax.plot(x, y, color="b")
-        plt.pause(0.1)
-        leitura = lidar.getRangeImage()
-        update() # atualiza a nova pose do robô
+        while rclpy.ok():
+            rclpy.spin_once(self)
+            self.update()
+            cont += 1
 
+            #PLOTAR GAUSSIANA DO ROBÔ
+            if cont % 4 == 0: # a cada 4 passos, plotar em preto “b” a gaussiana da posição do robô em x (pose[0])
+                for i in range(len(x)):
+                    y[i] = self.gaussian(x[i], self.pose[0], self.sigma_movimento)
+
+            ax.clear()
+            ax.set_ylim([0, 4])
+            ax.plot(x, y, color="b")
+            plt.pause(0.1)
+            leitura = self.laser
+            
+            if controle == 1:
+                self.sigma_movimento = self.sigma_movimento + 0.002 # se movimento reto, aumenta a incerteza da posição em 0.002
+                
+            if leitura[72] == inf and leitura[108] == inf: # se a leitura indicar em frente a uma porta
+                left.setVelocity(0)
+                right.setVelocity(0)
+
+                media_nova = (mapa[porta]*sigma_movimento + pose[0]*sigma_lidar) / (sigma_movimento+sigma_lidar)
+                sigma_novo = 1 / (1/sigma_movimento + 1/sigma_lidar)
+                pose[0] = media_nova # a nova posição x do robô
+                sigma_movimento = sigma_novo # novo erro gaussiano do robô
+
+                for i in range(len(x)): y2[i] = gaussian(x[i], mapa[porta], sigma_lidar)
+                    ax.plot(x, y2, color="r")
+                    plt.pause(0.1) # plota em vermelho “r” a gaussiana da leitura do laser com relação à porta
+                    robot.step(3000)
+
+                    for i in range(len(x)): y3[i] = gaussian(x[i], media_nova, sigma_novo)
+                        ax.plot(x, y3, color="g")
+                        plt.pause(0.1) # plota em verde “g” a gaussiana nova após interpolação das duas gaussianas.
+                        robot.step(3000)
+                        left.setVelocity(4)
+                        right.setVelocity(4)
+
+                if porta == 0: porta = 1 # altera para a próxima porta 0 → 1 ; 1 → 2
+                elif porta == 1: porta = 2
+
+                robot.step(1000)
+
+                cont += 1
 
     def run(self):
          
