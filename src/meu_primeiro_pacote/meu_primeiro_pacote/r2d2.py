@@ -17,8 +17,6 @@ import matplotlib.pyplot as plt
 from numpy import random
 from math import inf, sqrt, exp, pi, cos, sin
 
-from meu_primeiro_pacote.srv import ResetEncoder
-
 class R2D2(Node):
 
     #constructor do nó
@@ -43,47 +41,30 @@ class R2D2(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
-        
-        ###
-        # Create a client for the reset encoder service
-        self.reset_encoder_client = self.create_client(ResetEncoder, 'reset_encoder')
-
-        # Wait for the service to be available
-        while not self.reset_encoder_client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Service reset_encoder not available, waiting again...')
-
-        # Create a request
-        request = ResetEncoder.Request()
-
-        # Call the service
-        future = self.reset_encoder_client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
-
-        if future.result() is not None:
-            self.get_logger().info('Encoder reset successfully')
-        else:
-            self.get_logger().error('Failed to reset encoder')
-        ###
 
         # variables and constants
         self.raio = 0.033
         self.distancia_rodas = 0.178
-        self.pose = [0, 0, 0] # x, y, theta
+        self.posicao = [0, 0, 0] # x, y, theta  
         self.medidas = [0, 0] # esq, dir
         self.ultimas_medidas = [0, 0] # esq, dir
         self.distancias = [0, 0]
+        
+        #encoders
+        self.left_yaw = 0
+        self.right_yaw = 0
 
         # mapa
         self.estado_inicial = -4
         self.mapa = [-2.7, -0.7, 2.7] # posição central das três “portas” existentes
-        self.pose[0] = self.estado_inicial # atualiza como estado_inicial a posição x de pose
+        self.posicao[0] = self.estado_inicial # atualiza como estado_inicial a posição x de pose  <-----------------------------------
 
         # sigma
         self.sigma_odometria = 0.2 # rad
         self.sigma_lidar = 0.175 # meters
         self.sigma_movimento = 0.002 # m
 
-    def gaussian(x, mean, sigma):
+    def gaussian(self, x, mean, sigma):
         return (1 / (sigma*sqrt(2*pi))) * exp(-((x-mean)**2) / (2*sigma**2))
 
     def listener_callback_laser(self, msg):
@@ -147,18 +128,19 @@ class R2D2(Node):
         # cálculo da dist linear e angular percorrida no timestep
         deltaS = (self.distancias[0] + self.distancias[1]) / 2.0
         deltaTheta = (self.distancias[1] - self.distancias[0]) / self.distancia_rodas
-        self.pose[2] = (self.pose[2] + deltaTheta) % 6.28 # atualiza o valor Theta (diferença da divisão por 2π)
+        self.posicao[2] = (self.posicao[2] + deltaTheta) % 6.28 # atualiza o valor Theta (diferença da divisão por 2π)
 
         # decomposição x e y baseado no ângulo
-        deltaSx = deltaS * cos(self.pose[2])
-        deltaSy = deltaS * sin(self.pose[2])
+        deltaSx = deltaS * cos(self.posicao[2])
+        deltaSy = deltaS * sin(self.posicao[2])
 
         # atualização acumulativa da posição x e y
-        self.pose[0] = self.pose[0] + deltaSx # atualiza x
-        self.pose[1] = self.pose[1] + deltaSy # atualiza y
+        self.posicao[0] = self.posicao[0] + deltaSx  # atualiza x
+        self.posicao[1] = self.posicao[1] + deltaSy  # atualiza y
 
-        print("Postura:", self.pose)
+        print("Postura:", self.posicao)
 
+    # main loop
     def run(self):
         
         # initial graphics
@@ -169,7 +151,6 @@ class R2D2(Node):
         y3 = np.zeros(500)
         fig, ax = plt.subplots()
 
-        # main loop ------------------------------------------------------------------------------------------
         controle = 0
         cont = 0
         porta = 0  # robô começa em frente antes da porta 0
@@ -203,8 +184,7 @@ class R2D2(Node):
             # a cada 4 passos, plotar em preto “b” a gaussiana da posição do robô em x (pose[0])
             if cont % 4 == 0:
                 for i in range(len(x)):
-                    y[i] = self.gaussian(
-                        x[i], self.pose[0], self.sigma_movimento)
+                    y[i] = self.gaussian(x[i], self.posicao[0], self.sigma_movimento)
 
             ax.clear()
             ax.set_ylim([0, 4])
@@ -221,9 +201,9 @@ class R2D2(Node):
             if leitura[72] == inf and leitura[108] == inf:
                 self.parar
 
-                media_nova = (self.mapa[porta]*self.sigma_movimento + self.pose[0]* self.sigma_lidar) / (self.sigma_movimento+self.sigma_lidar)
+                media_nova = (self.mapa[porta]*self.sigma_movimento + self.posicao[0]* self.sigma_lidar) / (self.sigma_movimento+self.sigma_lidar)
                 sigma_novo = 1 / (1/self.sigma_movimento + 1/self.sigma_lidar)
-                self.pose[0] = media_nova  # a nova posição x do robô
+                self.posicao[0] = media_nova  # a nova posição x do robô
                 self.sigma_movimento = sigma_novo  # novo erro gaussiano do robô
 
                 for i in range(len(x)):
