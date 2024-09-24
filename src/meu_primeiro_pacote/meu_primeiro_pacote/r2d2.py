@@ -1,3 +1,5 @@
+#victor Ayres 11.121.224-7
+#Priscila Vazquez 11.121.322-9
 import rclpy
 from rclpy.node import Node
 
