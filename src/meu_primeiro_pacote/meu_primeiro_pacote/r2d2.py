@@ -15,10 +15,13 @@ import tf_transformations
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import random
-from math import inf
+from math import inf, sqrt, exp, pi, cos, sin
+
+from meu_primeiro_pacote.srv import ResetEncoder
 
 class R2D2(Node):
 
+    #constructor do nó
     def __init__(self):
         super().__init__('R2D2')
         self.get_logger().debug ('Definido o nome do nó para "R2D2"')
@@ -40,6 +43,27 @@ class R2D2(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
+        
+        ###
+        # Create a client for the reset encoder service
+        self.reset_encoder_client = self.create_client(ResetEncoder, 'reset_encoder')
+
+        # Wait for the service to be available
+        while not self.reset_encoder_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('Service reset_encoder not available, waiting again...')
+
+        # Create a request
+        request = ResetEncoder.Request()
+
+        # Call the service
+        future = self.reset_encoder_client.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+
+        if future.result() is not None:
+            self.get_logger().info('Encoder reset successfully')
+        else:
+            self.get_logger().error('Failed to reset encoder')
+        ###
 
         # variables and constants
         self.raio = 0.033
@@ -52,7 +76,7 @@ class R2D2(Node):
         # mapa
         self.estado_inicial = -4
         self.mapa = [-2.7, -0.7, 2.7] # posição central das três “portas” existentes
-        self.pose[0] = estado_inicial # atualiza como estado_inicial a posição x de pose
+        self.pose[0] = self.estado_inicial # atualiza como estado_inicial a posição x de pose
 
         # sigma
         self.sigma_odometria = 0.2 # rad
@@ -68,6 +92,7 @@ class R2D2(Node):
     def listener_callback_odom(self, msg):
         self.pose = msg.pose.pose
 
+    # função de callback do timer
     def on_timer(self):
         try:
             self.tf_right = self.tf_buffer.lookup_transform(
@@ -105,16 +130,21 @@ class R2D2(Node):
 
     # update function
     def update(self):
-        self.medidas[0] = self.left_yaw       #left_encoder.getValue()
-        self.medidas[1] = self.right_yaw      #right_encoder.getValue()
+        # pega os valores dos encoders
+        self.medidas[0] = self.left_yaw * pi / 180.0      #left_encoder.getValue()
+        self.medidas[1] = self.right_yaw  * pi / 180.0     #right_encoder.getValue()
+        
+        # calcula a distância percorrida na roda esquerda 
         diff = self.medidas[0] - self.ultimas_medidas[0] # conta quanto a roda LEFT girou desde a última medida (rad)
         self.distancias[0] = diff * self.raio + random.normal(0,0.002) # determina distância percorrida em metros e adiciona umpequeno erro
         self.ultimas_medidas[0] = self.medidas[0]
-        diff = self.medidas[1] - self.ultimas_medidas[1] # conta quanto a roda LEFT girou desde a última medida (rad)
+        
+        # calcula a distância percorrida na roda direita
+        diff = self.medidas[1] - self.ultimas_medidas[1] # conta quanto a roda RIGHT girou desde a última medida (rad)
         self.distancias[1] = diff * self.raio + random.normal(0,0.002) # determina distância percorrida em metros + pequeno erro
         self.ultimas_medidas[1] = self.medidas[1]
 
-        # ## cálculo da dist linear e angular percorrida no timestep
+        # cálculo da dist linear e angular percorrida no timestep
         deltaS = (self.distancias[0] + self.distancias[1]) / 2.0
         deltaTheta = (self.distancias[1] - self.distancias[0]) / self.distancia_rodas
         self.pose[2] = (self.pose[2] + deltaTheta) % 6.28 # atualiza o valor Theta (diferença da divisão por 2π)
@@ -131,7 +161,7 @@ class R2D2(Node):
 
     def run(self):
         
-        # initial graph # em roxo tudo que for relativo ao gráfico de plotagem
+        # initial graphics
         # cria um vetor x de 500 valores entre -4.5 e 4.5
         x = np.linspace(-4.5, 4.5, 500)
         y = np.zeros(500)  # cria um vetor y de 500 valores zeros
@@ -191,16 +221,15 @@ class R2D2(Node):
             if leitura[72] == inf and leitura[108] == inf:
                 self.parar
 
-                media_nova = (self.mapa[porta]*self.sigma_movimento + self.pose[0]
-                              * self.sigma_lidar) / (self.sigma_movimento+self.sigma_lidar)
+                media_nova = (self.mapa[porta]*self.sigma_movimento + self.pose[0]* self.sigma_lidar) / (self.sigma_movimento+self.sigma_lidar)
                 sigma_novo = 1 / (1/self.sigma_movimento + 1/self.sigma_lidar)
                 self.pose[0] = media_nova  # a nova posição x do robô
                 self.sigma_movimento = sigma_novo  # novo erro gaussiano do robô
 
                 for i in range(len(x)):
-                    y2[i] = self.gaussian(
-                        x[i], self.mapa[porta], self.sigma_lidar)
+                    y2[i] = self.gaussian(x[i], self.mapa[porta], self.sigma_lidar)
                 ax.plot(x, y2, color="r")
+                
                 # plota em vermelho “r” a gaussiana da leitura do laser com relação à porta
                 plt.pause(0.1)
                 rclpy.spin_once(self, timeout_sec=3.0)
@@ -208,6 +237,7 @@ class R2D2(Node):
                 for i in range(len(x)):
                     y3[i] = self.gaussian(x[i], media_nova, sigma_novo)
                 ax.plot(x, y3, color="g")
+                
                 # plota em verde “g” a gaussiana nova após interpolação das duas gaussianas.
                 plt.pause(0.1)
                 rclpy.spin_once(self, timeout_sec=3.0)
