@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'lidar_to_grid = mapeamento_pkg.lidar_to_grid:main'
         ],
     },
 )
