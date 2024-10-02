@@ -1,0 +1,147 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from math import cos, sin, radians, pi
+
+import rclpy
+from rclpy.node import Node
+
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist, Vector3
+
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+import tf_transformations
+
+import lidar_to_grid_map as lg
+from collections import deque
+
+class mapa(Node):
+    #constructor do nó
+    def __init__(self):
+        super().__init__('mapa')
+        self.get_logger().debug ('Definido o nome do nó para "mapa"')
+
+        qos_profile = QoSProfile(depth=10, reliability = QoSReliabilityPolicy.BEST_EFFORT)
+
+        self.get_logger().debug ('Definindo o subscriber do laser: "/scan"')
+        self.laser = None
+        self.create_subscription(LaserScan, '/scan', self.listener_callback_laser, qos_profile)
+
+        self.get_logger().debug ('Definindo o subscriber do laser: "/odom"')
+        self.pose = None
+        self.create_subscription(Odometry, '/odom', self.listener_callback_odom, qos_profile)
+
+        self.get_logger().debug ('Definindo o publisher de controle do robo: "/cmd_Vel"')
+        self.pub_cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
+
+        self.get_logger().info ('Definindo buffer, listener e timer para acessar as TFs.')
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.timer = self.create_timer(0.1, self.on_timer)
+
+
+# def file_read(f):
+#     """
+#     Reading LIDAR laser beams (angles and corresponding distance data)
+#     """
+#     measures = [line.split(",") for line in open(f)]
+#     angles = []
+#     distances = []
+#     for measure in measures:
+#         angles.append(float(measure[0]))
+#         distances.append(float(measure[1]))
+#     angles = np.array(angles)
+#     distances = np.array(distances)
+#     return angles, distances
+
+ang, dist = file_read("lidar01.csv")
+ox = np.sin(ang) * dist
+oy = np.cos(ang) * dist
+plt.figure(figsize=(6,10))
+plt.plot([oy, np.zeros(np.size(oy))], [ox, np.zeros(np.size(oy))], "ro-") # lines from 0,0 to the
+plt.axis("equal")
+bottom, top = plt.ylim()  # return the current ylim
+plt.ylim((top, bottom)) # rescale y axis, to match the grid orientation
+plt.grid(True)
+plt.show()
+
+map1 = np.ones((50, 50)) * 0.5
+line = lg.bresenham((2, 2), (40, 30))
+for l in line:
+    map1[l[0]][l[1]] = 1
+plt.imshow(map1)
+plt.colorbar()
+plt.show()
+
+##
+line = lg.bresenham((2, 30), (40, 30))
+for l in line:
+    map1[l[0]][l[1]] = 1
+line = lg.bresenham((2, 30), (2, 2))
+for l in line:
+    map1[l[0]][l[1]] = 1
+plt.imshow(map1)
+plt.colorbar()
+plt.show()
+
+##
+def flood_fill(cpoint, pmap):
+    """
+    cpoint: starting point (x,y) of fill
+    pmap: occupancy map generated from Bresenham ray-tracing
+    """
+    # Fill empty areas with queue method
+    sx, sy = pmap.shape
+    fringe = deque()
+    fringe.appendleft(cpoint)
+    while fringe:
+        n = fringe.pop()
+        nx, ny = n
+        # West
+        if nx > 0:
+            if pmap[nx - 1, ny] == 0.5:
+                pmap[nx - 1, ny] = 0.0
+                fringe.appendleft((nx - 1, ny))
+        # East
+        if nx < sx - 1:
+            if pmap[nx + 1, ny] == 0.5:
+                pmap[nx + 1, ny] = 0.0
+                fringe.appendleft((nx + 1, ny))
+        # North
+        if ny > 0:
+            if pmap[nx, ny - 1] == 0.5:
+                pmap[nx, ny - 1] = 0.0
+                fringe.appendleft((nx, ny - 1))
+        # South
+        if ny < sy - 1:
+            if pmap[nx, ny + 1] == 0.5:
+                pmap[nx, ny + 1] = 0.0
+                fringe.appendleft((nx, ny + 1))
+
+flood_fill((10, 20), map1)
+map_float = np.array(map1)/10.0
+plt.imshow(map1)
+plt.colorbar()
+plt.show()
+
+xyreso = 0.02  # x-y grid resolution
+yawreso = math.radians(3.1)  # yaw angle resolution [rad]
+ang, dist = file_read("lidar01.csv")
+ox = np.sin(ang) * dist
+oy = np.cos(ang) * dist
+pmap, minx, maxx, miny, maxy, xyreso = lg.generate_ray_casting_grid_map(ox, oy, xyreso, False)
+xyres = np.array(pmap).shape
+plt.figure(figsize=(20,8))
+plt.subplot(122)
+plt.imshow(pmap, cmap = "PiYG_r")
+plt.clim(-0.4, 1.4)
+plt.gca().set_xticks(np.arange(-.5, xyres[1], 1), minor = True)
+plt.gca().set_yticks(np.arange(-.5, xyres[0], 1), minor = True)
+plt.grid(True, which="minor", color="w", linewidth = .6, alpha = 0.5)
+plt.colorbar()
+plt.show()
