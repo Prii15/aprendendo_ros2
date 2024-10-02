@@ -1,5 +1,7 @@
 [console_scripts]
+listener = meu_primeiro_pacote.listener:main
 meu_primeiro_no = meu_primeiro_pacote.no_simples:main
 no = meu_primeiro_pacote.no_com_classe:main
+r2d2 = meu_primeiro_pacote.r2d2:main
 talker = meu_primeiro_pacote.talker:main
 

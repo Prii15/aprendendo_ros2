@@ -9,8 +9,10 @@ setup.py
 ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/top_level.txt
 ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/zip-safe
 meu_primeiro_pacote/__init__.py
+meu_primeiro_pacote/listener.py
 meu_primeiro_pacote/no_com_classe.py
 meu_primeiro_pacote/no_simples.py
+meu_primeiro_pacote/r2d2.py
 meu_primeiro_pacote/talker.py
 resource/meu_primeiro_pacote
 test/test_copyright.py

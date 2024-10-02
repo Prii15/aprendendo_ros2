@@ -1,0 +1,22 @@
+[6.833s] Invoking command in '/home/robot/ws_aprendendo_ros2/src/mapeamento_pkg': PYTHONPATH=/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/prefix_override:/home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/mapeamento_pkg build --build-base /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build install --record /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/install.log --single-version-externally-managed
+[9.020s] running egg_info
+[9.026s] writing ../build/mapeamento_pkg/mapeamento_pkg.egg-info/PKG-INFO
+[9.028s] writing dependency_links to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/dependency_links.txt
+[9.029s] writing entry points to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/entry_points.txt
+[9.038s] writing requirements to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/requires.txt
+[9.045s] writing top-level names to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/top_level.txt
+[9.055s] reading manifest file '../build/mapeamento_pkg/mapeamento_pkg.egg-info/SOURCES.txt'
+[9.056s] writing manifest file '../build/mapeamento_pkg/mapeamento_pkg.egg-info/SOURCES.txt'
+[9.064s] running build
+[9.064s] running build_py
+[9.065s] running install
+[9.078s] running install_lib
+[9.082s] running install_data
+[9.089s] running install_egg_info
+[9.092s] removing '/home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[9.106s] Copying ../build/mapeamento_pkg/mapeamento_pkg.egg-info to /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg-0.0.0-py3.10.egg-info
+[9.111s] running install_scripts
+[9.254s] Installing lidar_to_grid script to /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/mapeamento_pkg
+[9.264s] Installing lidar_to_grid_map script to /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/mapeamento_pkg
+[9.267s] writing list of installed files to '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/install.log'
+[9.739s] Invoked command in '/home/robot/ws_aprendendo_ros2/src/mapeamento_pkg' returned '0': PYTHONPATH=/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/prefix_override:/home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/mapeamento_pkg build --build-base /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build install --record /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/install.log --single-version-externally-managed

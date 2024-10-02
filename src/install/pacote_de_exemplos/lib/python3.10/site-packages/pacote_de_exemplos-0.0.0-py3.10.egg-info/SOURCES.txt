@@ -48,6 +48,7 @@ simulation/models/wood_square/model.sdf
 simulation/worlds/empty.world
 simulation/worlds/simple_room.world
 simulation/worlds/simple_room_with_fixed_boxes.world
+simulation/worlds/simple_room_with_gaps.world
 simulation/worlds/simple_room_with_random_boxes.world
 test/test_copyright.py
 test/test_flake8.py

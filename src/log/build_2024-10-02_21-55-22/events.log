@@ -1,0 +1,139 @@
+[0.000000] (-) TimerEvent: {}
+[0.000345] (mapeamento_pkg) JobQueued: {'identifier': 'mapeamento_pkg', 'dependencies': OrderedDict()}
+[0.000404] (meu_primeiro_pacote) JobQueued: {'identifier': 'meu_primeiro_pacote', 'dependencies': OrderedDict()}
+[0.000446] (pacote_de_exemplos) JobQueued: {'identifier': 'pacote_de_exemplos', 'dependencies': OrderedDict()}
+[0.001351] (mapeamento_pkg) JobStarted: {'identifier': 'mapeamento_pkg'}
+[0.022576] (meu_primeiro_pacote) JobStarted: {'identifier': 'meu_primeiro_pacote'}
+[0.099751] (-) TimerEvent: {}
+[0.200098] (-) TimerEvent: {}
+[0.300541] (-) TimerEvent: {}
+[0.401329] (-) TimerEvent: {}
+[0.502132] (-) TimerEvent: {}
+[0.602889] (-) TimerEvent: {}
+[0.703574] (-) TimerEvent: {}
+[0.804324] (-) TimerEvent: {}
+[0.905212] (-) TimerEvent: {}
+[1.005907] (-) TimerEvent: {}
+[1.039213] (mapeamento_pkg) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../build/mapeamento_pkg', 'build', '--build-base', '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build', 'install', '--record', '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/install.log', '--single-version-externally-managed'], 'cwd': '/home/robot/ws_aprendendo_ros2/src/mapeamento_pkg', 'env': {'TMUX': '/tmp/tmux-0/default,89,0', 'HOSTNAME': 'e4780ab4d8e3', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/root', 'OLDPWD': '/home/robot/ws_aprendendo_ros2', 'TERM_PROGRAM_VERSION': '3.2a', 'ROS_PYTHON_VERSION': '3', 'COLCON_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'root', 'WINDOWID': '6291468', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XTERM_SHELL': '/usr/bin/tmux', 'TERM': 'screen', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DISPLAY': ':9', 'LANG': 'C.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'TERM_PROGRAM': 'tmux', 'AMENT_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote:/opt/ros/humble', 'SHELL': '/bin/bash', 'ROS_MASTER_URI': ':http://ros-master:11311', 'PWD': '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg', 'LC_ALL': 'C.UTF-8', 'XTERM_LOCALE': 'C.UTF-8', 'XTERM_VERSION': 'XTerm(372)', 'PYTHONPATH': '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/prefix_override:/home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/meu_primeiro_pacote:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'TMUX_PANE': '%0'}, 'shell': False}
+[1.070193] (meu_primeiro_pacote) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../build/meu_primeiro_pacote', 'build', '--build-base', '/home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/build', 'install', '--record', '/home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/install.log', '--single-version-externally-managed'], 'cwd': '/home/robot/ws_aprendendo_ros2/src/meu_primeiro_pacote', 'env': {'TMUX': '/tmp/tmux-0/default,89,0', 'HOSTNAME': 'e4780ab4d8e3', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/root', 'OLDPWD': '/home/robot/ws_aprendendo_ros2', 'TERM_PROGRAM_VERSION': '3.2a', 'ROS_PYTHON_VERSION': '3', 'COLCON_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'root', 'WINDOWID': '6291468', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XTERM_SHELL': '/usr/bin/tmux', 'TERM': 'screen', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DISPLAY': ':9', 'LANG': 'C.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'TERM_PROGRAM': 'tmux', 'AMENT_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote:/opt/ros/humble', 'SHELL': '/bin/bash', 'ROS_MASTER_URI': ':http://ros-master:11311', 'PWD': '/home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote', 'LC_ALL': 'C.UTF-8', 'XTERM_LOCALE': 'C.UTF-8', 'XTERM_VERSION': 'XTerm(372)', 'PYTHONPATH': '/home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/prefix_override:/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/meu_primeiro_pacote:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'TMUX_PANE': '%0'}, 'shell': False}
+[1.106010] (-) TimerEvent: {}
+[1.206374] (-) TimerEvent: {}
+[1.306728] (-) TimerEvent: {}
+[1.414429] (-) TimerEvent: {}
+[1.443624] (mapeamento_pkg) StdoutLine: {'line': b'running egg_info\n'}
+[1.444281] (mapeamento_pkg) StdoutLine: {'line': b'creating ../build/mapeamento_pkg/mapeamento_pkg.egg-info\n'}
+[1.448291] (mapeamento_pkg) StdoutLine: {'line': b'writing ../build/mapeamento_pkg/mapeamento_pkg.egg-info/PKG-INFO\n'}
+[1.448723] (mapeamento_pkg) StdoutLine: {'line': b'writing dependency_links to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/dependency_links.txt\n'}
+[1.449073] (mapeamento_pkg) StdoutLine: {'line': b'writing entry points to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/entry_points.txt\n'}
+[1.449322] (mapeamento_pkg) StdoutLine: {'line': b'writing requirements to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/requires.txt\n'}
+[1.449579] (mapeamento_pkg) StdoutLine: {'line': b'writing top-level names to ../build/mapeamento_pkg/mapeamento_pkg.egg-info/top_level.txt\n'}
+[1.449877] (mapeamento_pkg) StdoutLine: {'line': b"writing manifest file '../build/mapeamento_pkg/mapeamento_pkg.egg-info/SOURCES.txt'\n"}
+[1.452271] (mapeamento_pkg) StdoutLine: {'line': b"reading manifest file '../build/mapeamento_pkg/mapeamento_pkg.egg-info/SOURCES.txt'\n"}
+[1.461689] (mapeamento_pkg) StdoutLine: {'line': b"writing manifest file '../build/mapeamento_pkg/mapeamento_pkg.egg-info/SOURCES.txt'\n"}
+[1.461884] (mapeamento_pkg) StdoutLine: {'line': b'running build\n'}
+[1.462034] (mapeamento_pkg) StdoutLine: {'line': b'running build_py\n'}
+[1.462178] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build\n'}
+[1.463294] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib\n'}
+[1.463453] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg\n'}
+[1.463601] (mapeamento_pkg) StdoutLine: {'line': b'copying mapeamento_pkg/lidar_to_grid_map.py -> /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg\n'}
+[1.463750] (mapeamento_pkg) StdoutLine: {'line': b'copying mapeamento_pkg/__init__.py -> /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg\n'}
+[1.463903] (mapeamento_pkg) StdoutLine: {'line': b'copying mapeamento_pkg/lidar_to_grid.py -> /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg\n'}
+[1.464071] (mapeamento_pkg) StdoutLine: {'line': b'running install\n'}
+[1.464222] (mapeamento_pkg) StdoutLine: {'line': b'running install_lib\n'}
+[1.464365] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg\n'}
+[1.464513] (mapeamento_pkg) StdoutLine: {'line': b'copying /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg/lidar_to_grid_map.py -> /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg\n'}
+[1.464665] (mapeamento_pkg) StdoutLine: {'line': b'copying /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg/__init__.py -> /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg\n'}
+[1.473614] (mapeamento_pkg) StdoutLine: {'line': b'copying /home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/build/lib/mapeamento_pkg/lidar_to_grid.py -> /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg\n'}
+[1.473844] (mapeamento_pkg) StdoutLine: {'line': b'byte-compiling /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg/lidar_to_grid_map.py to lidar_to_grid_map.cpython-310.pyc\n'}
+[1.474731] (mapeamento_pkg) StdoutLine: {'line': b'byte-compiling /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg/__init__.py to __init__.cpython-310.pyc\n'}
+[1.475566] (mapeamento_pkg) StdoutLine: {'line': b'byte-compiling /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg/lidar_to_grid.py to lidar_to_grid.cpython-310.pyc\n'}
+[1.479302] (mapeamento_pkg) StdoutLine: {'line': b'running install_data\n'}
+[1.479501] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/share/ament_index\n'}
+[1.479679] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/share/ament_index/resource_index\n'}
+[1.479854] (mapeamento_pkg) StdoutLine: {'line': b'creating /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/share/ament_index/resource_index/packages\n'}
+[1.480024] (mapeamento_pkg) StdoutLine: {'line': b'copying resource/mapeamento_pkg -> /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/share/ament_index/resource_index/packages\n'}
+[1.480185] (mapeamento_pkg) StdoutLine: {'line': b'copying package.xml -> /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/share/mapeamento_pkg\n'}
+[1.480341] (mapeamento_pkg) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.485283] (mapeamento_pkg) StdoutLine: {'line': b'Copying ../build/mapeamento_pkg/mapeamento_pkg.egg-info to /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/python3.10/site-packages/mapeamento_pkg-0.0.0-py3.10.egg-info\n'}
+[1.487927] (mapeamento_pkg) StdoutLine: {'line': b'running install_scripts\n'}
+[1.497162] (meu_primeiro_pacote) StdoutLine: {'line': b'running egg_info\n'}
+[1.499434] (meu_primeiro_pacote) StdoutLine: {'line': b'writing ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/PKG-INFO\n'}
+[1.500049] (meu_primeiro_pacote) StdoutLine: {'line': b'writing dependency_links to ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/dependency_links.txt\n'}
+[1.500798] (meu_primeiro_pacote) StdoutLine: {'line': b'writing entry points to ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/entry_points.txt\n'}
+[1.501369] (meu_primeiro_pacote) StdoutLine: {'line': b'writing requirements to ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/requires.txt\n'}
+[1.501593] (meu_primeiro_pacote) StdoutLine: {'line': b'writing top-level names to ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/top_level.txt\n'}
+[1.502919] (meu_primeiro_pacote) StdoutLine: {'line': b"reading manifest file '../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/SOURCES.txt'\n"}
+[1.505036] (meu_primeiro_pacote) StdoutLine: {'line': b"writing manifest file '../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info/SOURCES.txt'\n"}
+[1.506384] (meu_primeiro_pacote) StdoutLine: {'line': b'running build\n'}
+[1.507221] (meu_primeiro_pacote) StdoutLine: {'line': b'running build_py\n'}
+[1.508337] (meu_primeiro_pacote) StdoutLine: {'line': b'copying meu_primeiro_pacote/listener.py -> /home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/build/lib/meu_primeiro_pacote\n'}
+[1.509933] (meu_primeiro_pacote) StdoutLine: {'line': b'copying meu_primeiro_pacote/r2d2.py -> /home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/build/lib/meu_primeiro_pacote\n'}
+[1.511763] (meu_primeiro_pacote) StdoutLine: {'line': b'running install\n'}
+[1.513004] (meu_primeiro_pacote) StdoutLine: {'line': b'running install_lib\n'}
+[1.514506] (-) TimerEvent: {}
+[1.515253] (meu_primeiro_pacote) StdoutLine: {'line': b'copying /home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/build/lib/meu_primeiro_pacote/listener.py -> /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote\n'}
+[1.517128] (meu_primeiro_pacote) StdoutLine: {'line': b'copying /home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/build/lib/meu_primeiro_pacote/r2d2.py -> /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote\n'}
+[1.519617] (meu_primeiro_pacote) StdoutLine: {'line': b'byte-compiling /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/listener.py to listener.cpython-310.pyc\n'}
+[1.520412] (mapeamento_pkg) StdoutLine: {'line': b'Installing lidar_to_grid = mapeamento_pkg.lidar_to_grid:mainlidar_to_grid_map script to /home/robot/ws_aprendendo_ros2/src/install/mapeamento_pkg/lib/mapeamento_pkg\n'}
+[1.521535] (mapeamento_pkg) StdoutLine: {'line': b"writing list of installed files to '/home/robot/ws_aprendendo_ros2/src/build/mapeamento_pkg/install.log'\n"}
+[1.524173] (meu_primeiro_pacote) StdoutLine: {'line': b'byte-compiling /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/r2d2.py to r2d2.cpython-310.pyc\n'}
+[1.528187] (meu_primeiro_pacote) StdoutLine: {'line': b'running install_data\n'}
+[1.529699] (meu_primeiro_pacote) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.532621] (meu_primeiro_pacote) StdoutLine: {'line': b"removing '/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote-0.0.0-py3.10.egg-info' (and everything under it)\n"}
+[1.541961] (meu_primeiro_pacote) StdoutLine: {'line': b'Copying ../build/meu_primeiro_pacote/meu_primeiro_pacote.egg-info to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote-0.0.0-py3.10.egg-info\n'}
+[1.551598] (mapeamento_pkg) CommandEnded: {'returncode': 0}
+[1.553374] (meu_primeiro_pacote) StdoutLine: {'line': b'running install_scripts\n'}
+[1.577678] (mapeamento_pkg) JobEnded: {'identifier': 'mapeamento_pkg', 'rc': 0}
+[1.578957] (pacote_de_exemplos) JobStarted: {'identifier': 'pacote_de_exemplos'}
+[1.590317] (meu_primeiro_pacote) StdoutLine: {'line': b'Installing listener script to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote\n'}
+[1.591259] (meu_primeiro_pacote) StdoutLine: {'line': b'Installing meu_primeiro_no script to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote\n'}
+[1.592389] (meu_primeiro_pacote) StdoutLine: {'line': b'Installing no script to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote\n'}
+[1.593612] (meu_primeiro_pacote) StdoutLine: {'line': b'Installing r2d2 script to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote\n'}
+[1.594671] (meu_primeiro_pacote) StdoutLine: {'line': b'Installing talker script to /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote\n'}
+[1.596224] (meu_primeiro_pacote) StdoutLine: {'line': b"writing list of installed files to '/home/robot/ws_aprendendo_ros2/src/build/meu_primeiro_pacote/install.log'\n"}
+[1.614614] (-) TimerEvent: {}
+[1.715426] (-) TimerEvent: {}
+[1.816299] (-) TimerEvent: {}
+[1.909466] (meu_primeiro_pacote) CommandEnded: {'returncode': 0}
+[1.921722] (-) TimerEvent: {}
+[1.945614] (meu_primeiro_pacote) JobEnded: {'identifier': 'meu_primeiro_pacote', 'rc': 0}
+[2.021840] (-) TimerEvent: {}
+[2.122837] (-) TimerEvent: {}
+[2.223512] (-) TimerEvent: {}
+[2.324048] (-) TimerEvent: {}
+[2.425492] (-) TimerEvent: {}
+[2.483886] (pacote_de_exemplos) Command: {'cmd': ['/usr/bin/python3', 'setup.py', 'egg_info', '--egg-base', '../build/pacote_de_exemplos', 'build', '--build-base', '/home/robot/ws_aprendendo_ros2/src/build/pacote_de_exemplos/build', 'install', '--record', '/home/robot/ws_aprendendo_ros2/src/build/pacote_de_exemplos/install.log', '--single-version-externally-managed'], 'cwd': '/home/robot/ws_aprendendo_ros2/src/pacote_de_exemplos', 'env': {'TMUX': '/tmp/tmux-0/default,89,0', 'HOSTNAME': 'e4780ab4d8e3', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/root', 'OLDPWD': '/home/robot/ws_aprendendo_ros2', 'TERM_PROGRAM_VERSION': '3.2a', 'ROS_PYTHON_VERSION': '3', 'COLCON_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'root', 'WINDOWID': '6291468', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XTERM_SHELL': '/usr/bin/tmux', 'TERM': 'screen', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DISPLAY': ':9', 'LANG': 'C.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'TERM_PROGRAM': 'tmux', 'AMENT_PREFIX_PATH': '/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote:/opt/ros/humble', 'SHELL': '/bin/bash', 'ROS_MASTER_URI': ':http://ros-master:11311', 'PWD': '/home/robot/ws_aprendendo_ros2/src/build/pacote_de_exemplos', 'LC_ALL': 'C.UTF-8', 'XTERM_LOCALE': 'C.UTF-8', 'XTERM_VERSION': 'XTerm(372)', 'PYTHONPATH': '/home/robot/ws_aprendendo_ros2/src/build/pacote_de_exemplos/prefix_override:/home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/pacote_de_exemplos:/home/robot/ws_aprendendo_ros2/install/pacote_de_exemplos/lib/python3.10/site-packages:/home/robot/ws_aprendendo_ros2/build/meu_primeiro_pacote:/home/robot/ws_aprendendo_ros2/install/meu_primeiro_pacote/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'TMUX_PANE': '%0'}, 'shell': False}
+[2.525601] (-) TimerEvent: {}
+[2.626097] (-) TimerEvent: {}
+[2.726489] (-) TimerEvent: {}
+[2.827021] (-) TimerEvent: {}
+[2.863439] (pacote_de_exemplos) StdoutLine: {'line': b'running egg_info\n'}
+[2.869536] (pacote_de_exemplos) StdoutLine: {'line': b'writing ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/PKG-INFO\n'}
+[2.870228] (pacote_de_exemplos) StdoutLine: {'line': b'writing dependency_links to ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/dependency_links.txt\n'}
+[2.871301] (pacote_de_exemplos) StdoutLine: {'line': b'writing entry points to ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/entry_points.txt\n'}
+[2.872165] (pacote_de_exemplos) StdoutLine: {'line': b'writing requirements to ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/requires.txt\n'}
+[2.872518] (pacote_de_exemplos) StdoutLine: {'line': b'writing top-level names to ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/top_level.txt\n'}
+[2.874962] (pacote_de_exemplos) StdoutLine: {'line': b"reading manifest file '../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/SOURCES.txt'\n"}
+[2.877691] (pacote_de_exemplos) StdoutLine: {'line': b"writing manifest file '../build/pacote_de_exemplos/pacote_de_exemplos.egg-info/SOURCES.txt'\n"}
+[2.879224] (pacote_de_exemplos) StdoutLine: {'line': b'running build\n'}
+[2.879572] (pacote_de_exemplos) StdoutLine: {'line': b'running build_py\n'}
+[2.881288] (pacote_de_exemplos) StdoutLine: {'line': b'running install\n'}
+[2.882083] (pacote_de_exemplos) StdoutLine: {'line': b'running install_lib\n'}
+[2.885271] (pacote_de_exemplos) StdoutLine: {'line': b'running install_data\n'}
+[2.887570] (pacote_de_exemplos) StdoutLine: {'line': b'copying launch/load.launch.py -> /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/launch/\n'}
+[2.890163] (pacote_de_exemplos) StdoutLine: {'line': b'copying launch/mapping_cartographer.launch.py -> /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/launch/\n'}
+[2.890473] (pacote_de_exemplos) StdoutLine: {'line': b'copying simulation/worlds/simple_room_with_gaps.world -> /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds\n'}
+[2.891940] (pacote_de_exemplos) StdoutLine: {'line': b'copying urdf/simulation/gazebo_base.urdf.xacro -> /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/urdf/simulation\n'}
+[2.895257] (pacote_de_exemplos) StdoutLine: {'line': b'running install_egg_info\n'}
+[2.897792] (pacote_de_exemplos) StdoutLine: {'line': b"removing '/home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/python3.10/site-packages/pacote_de_exemplos-0.0.0-py3.10.egg-info' (and everything under it)\n"}
+[2.904177] (pacote_de_exemplos) StdoutLine: {'line': b'Copying ../build/pacote_de_exemplos/pacote_de_exemplos.egg-info to /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/python3.10/site-packages/pacote_de_exemplos-0.0.0-py3.10.egg-info\n'}
+[2.910058] (pacote_de_exemplos) StdoutLine: {'line': b'running install_scripts\n'}
+[2.927124] (-) TimerEvent: {}
+[2.938519] (pacote_de_exemplos) StdoutLine: {'line': b'Installing checkpoints script to /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/pacote_de_exemplos\n'}
+[2.939220] (pacote_de_exemplos) StdoutLine: {'line': b'Installing no_com_classe script to /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/pacote_de_exemplos\n'}
+[2.939734] (pacote_de_exemplos) StdoutLine: {'line': b'Installing no_simples script to /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/pacote_de_exemplos\n'}
+[2.940229] (pacote_de_exemplos) StdoutLine: {'line': b'Installing r2d2 script to /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/lib/pacote_de_exemplos\n'}
+[2.941099] (pacote_de_exemplos) StdoutLine: {'line': b"writing list of installed files to '/home/robot/ws_aprendendo_ros2/src/build/pacote_de_exemplos/install.log'\n"}
+[2.971640] (pacote_de_exemplos) CommandEnded: {'returncode': 0}
+[2.983760] (pacote_de_exemplos) JobEnded: {'identifier': 'pacote_de_exemplos', 'rc': 0}
+[2.986036] (-) EventReactorShutdown: {}

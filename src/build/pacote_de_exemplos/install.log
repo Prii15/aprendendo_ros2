@@ -37,6 +37,7 @@
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds/simple_room_with_random_boxes.world
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds/simple_room_with_fixed_boxes.world
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds/simple_room.world
+/home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds/simple_room_with_gaps.world
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/worlds/empty.world
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/models/wood_square/model.sdf
 /home/robot/ws_aprendendo_ros2/src/install/pacote_de_exemplos/share/pacote_de_exemplos/simulation/models/wood_square/model.config

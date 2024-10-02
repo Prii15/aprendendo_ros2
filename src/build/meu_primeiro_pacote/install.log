@@ -1,9 +1,13 @@
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/no_com_classe.py
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/listener.py
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/no_simples.py
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/r2d2.py
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__init__.py
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/talker.py
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/no_com_classe.cpython-310.pyc
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/listener.cpython-310.pyc
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/no_simples.cpython-310.pyc
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/r2d2.cpython-310.pyc
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/__init__.cpython-310.pyc
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote/__pycache__/talker.cpython-310.pyc
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/share/ament_index/resource_index/packages/meu_primeiro_pacote
@@ -15,6 +19,8 @@
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote-0.0.0-py3.10.egg-info/dependency_links.txt
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote-0.0.0-py3.10.egg-info/requires.txt
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/python3.10/site-packages/meu_primeiro_pacote-0.0.0-py3.10.egg-info/zip-safe
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote/listener
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote/meu_primeiro_no
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote/no
+/home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote/r2d2
 /home/robot/ws_aprendendo_ros2/src/install/meu_primeiro_pacote/lib/meu_primeiro_pacote/talker
