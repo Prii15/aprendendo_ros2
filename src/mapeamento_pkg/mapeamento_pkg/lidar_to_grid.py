@@ -336,7 +336,7 @@ class mapa(Node):
         plt.colorbar()
         plt.show()
 
-    # TODO create the update function 
+    # TODO create the update function l
     def update(self):
         if self.laser is not None and self.pose is not None:
             if self.laser is not None and self.pose is not None:
