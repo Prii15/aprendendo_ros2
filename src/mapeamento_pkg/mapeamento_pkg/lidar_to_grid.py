@@ -232,14 +232,11 @@ class mapa(Node):
         The breshen boolean tells if it's computed with bresenham ray casting
         (True) or with flood fill (False)
         """
-        min_x, min_y, max_x, max_y, x_w, y_w = calc_grid_map_config(
-            ox, oy, xy_resolution)
+        min_x, min_y, max_x, max_y, x_w, y_w = calc_grid_map_config(ox, oy, xy_resolution)
         # default 0.5 -- [[0.5 for i in range(y_w)] for i in range(x_w)]
         occupancy_map = np.ones((x_w, y_w)) / 2
-        center_x = int(
-            round(-min_x / xy_resolution))  # center x coordinate of the grid map
-        center_y = int(
-            round(-min_y / xy_resolution))  # center y coordinate of the grid map
+        center_x = int(round(-min_x / xy_resolution))  # center x coordinate of the grid map
+        center_y = int(round(-min_y / xy_resolution))  # center y coordinate of the grid map
         # occupancy grid computed with bresenham ray casting
         if breshen:
             for (x, y) in zip(ox, oy):
@@ -247,8 +244,7 @@ class mapa(Node):
                 ix = int(round((x - min_x) / xy_resolution))
                 # y coordinate of the the occupied area
                 iy = int(round((y - min_y) / xy_resolution))
-                laser_beams = bresenham((center_x, center_y), (
-                    ix, iy))  # line form the lidar to the occupied point
+                laser_beams = bresenham((center_x, center_y), (ix, iy))  # line form the lidar to the occupied point
                 for laser_beam in laser_beams:
                     occupancy_map[laser_beam[0]][
                         laser_beam[1]] = 0.0  # free area 0.0
@@ -341,8 +337,23 @@ class mapa(Node):
         plt.show()
 
     # TODO create the update function 
-    def update():
-        pass
+    def update(self):
+        if self.laser is not None and self.pose is not None:
+            # Extrair a posição e orientação do robô
+            x_robot = self.pose.position.x
+            y_robot = self.pose.position.y
+            orientation = self.pose.orientation
+            _, _, yaw_robot = tf_transformations.euler_from_quaternion([orientation.x, orientation.y, orientation.z, orientation.w])
+
+            # Calcular as coordenadas do laser em relação à posição do robô
+            ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+
+            # Atualizar o mapa
+            pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
+
+            # Plotar ou processar o pmap aqui conforme necessário
+            self.plot_map(pmap)
 
 
     def run(self):
