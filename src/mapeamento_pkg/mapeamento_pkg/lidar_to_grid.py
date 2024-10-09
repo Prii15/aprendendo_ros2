@@ -21,10 +21,10 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 import tf_transformations
 
-import lidar_to_grid_map as lg
+from .lidar_to_grid_map import * 
 from collections import deque
 
-EXTEND_AREA = 1.0
+#EXTEND_AREA = 1.0
 
 class mapa(Node):
 
@@ -322,7 +322,7 @@ class mapa(Node):
         xyreso = 0.02  # x-y grid resolution
         yawreso = math.radians(3.1)  # yaw angle resolution [rad]
 
-        pmap, minx, maxx, miny, maxy, xyreso = lg.generate_ray_casting_grid_map(ox, oy, xyreso, False)
+        pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(ox, oy, xyreso, False)
         xyres = np.array(pmap).shape
 
         # Plot the laser map
@@ -355,13 +355,13 @@ class mapa(Node):
 
             # Adicionar o novo mapa ao mapa existente
             if hasattr(self, 'global_map'):
-                # Combine pmap com global_map (por exemplo, usando lógica de ocupação)
+                # Combine pmap com global_map 
                 self.global_map = np.maximum(self.global_map, pmap)
             else:
                 # Se não existir um mapa global, inicie com o pmap
                 self.global_map = pmap
 
-            # Plotar ou processar o mapa global aqui conforme necessário
+            # Plotar o mapa global aqui conforme necessário
             plt.figure(figsize=(10, 10))
             plt.imshow(self.global_map, cmap="PiYG_r")
             plt.colorbar()
