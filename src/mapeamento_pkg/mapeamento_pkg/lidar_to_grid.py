@@ -135,53 +135,37 @@ class Mapa(Node):
 
     # TODO create the update function l
     def update(self):
+    # Verifica se os dados do laser e a pose do robô estão disponíveis
         if self.laser is not None and self.pose is not None:
-            # Extrair a posição e orientação do robô
+            # Obter a posição do robô
             x_robot = self.pose.position.x
             y_robot = self.pose.position.y
             orientation = self.pose.orientation
-        
-        # Converter quaternion para yaw
-        _, _, yaw_robot = tf_transformations.euler_from_quaternion(
-            [orientation.x, orientation.y, orientation.z, orientation.w]
-        )
-        
-        # Verificar se os dados do laser estão disponíveis e válidos
-        if len(self.distantiae) == 0 or len(self.angulus) == 0:
-            print("Dados do laser estão vazios ou inválidos!")
-            return
-        
-        # Calcular as coordenadas do laser em relação à posição do robô
-        ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-        oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            _, _, yaw_robot = tf_transformations.euler_from_quaternion(
+                [orientation.x, orientation.y, orientation.z, orientation.w]
+            )
 
-        # Log das coordenadas para debug
-        print("Coordenadas ox:", ox)
-        print("Coordenadas oy:", oy)
+            # Converte os dados do laser para coordenadas x-y em relação à posição do robô
+            ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
-        # Gerar o mapa de ocupação usando o laser
-        pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
-        
-        # Combinar o mapa local (pmap) com o mapa global
-        if hasattr(self, 'global_map'):
-            # Atualizar o mapa global, combinando os valores de maneira ponderada
-            self.global_map = (self.global_map * 0.9) + (pmap * 0.1)
-        else:
-            # Inicializar o mapa global com o novo pmap
-            self.global_map = pmap
+            # Gera um novo mapa a partir dos dados do LiDAR
+            xy_resolution = 0.02  # resolução do grid
+            pmap, min_x, max_x, min_y, max_y, xy_resolution = generate_ray_casting_grid_map(ox, oy, xy_resolution)
 
-        # Log para verificar se o mapa global está sendo atualizado
-        print("Mapa global atualizado:")
-        print(self.global_map)
+            # Atualiza o mapa global
+            if self.global_map is None:
+                self.global_map = pmap  # Inicializa o mapa global com o primeiro mapa
+            else:
+                # Acumula os dados do novo mapa no mapa global
+                self.global_map = np.maximum(self.global_map, pmap)
 
-        # Visualizar o mapa atualizado
-        plt.figure(figsize=(10, 10))
-        plt.imshow(self.global_map, cmap="PiYG_r")
-        plt.colorbar()
-        plt.title("Mapa Atualizado")
-        plt.show()
-
-
+            # Plotar o mapa global
+            plt.figure(figsize=(10, 10))
+            plt.imshow(self.global_map, cmap="PiYG_r")
+            plt.colorbar()
+            plt.title("Mapa Atualizado")
+            plt.pause(0.1)  # Pausa para permitir que o gráfico atualize
 
     def run(self):
         self.get_logger().info ('Iniciando o mapeamento do ambiente.')
@@ -191,16 +175,8 @@ class Mapa(Node):
             rclpy.spin_once(self)
 
             # TODO create the fist map
-
             #update the map
             self.update()   
-
-            if self.global_map is not None:
-                plt.figure(figsize=(10, 10))
-                plt.imshow(self.global_map, cmap="PiYG_r")
-                plt.colorbar()
-                plt.title("Mapa Atualizado")
-                plt.pause(0.1)  # Pause para permitir que o gráfico atualize 
 
 def main(args=None):
     rclpy.init(args=args)
