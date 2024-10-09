@@ -151,14 +151,19 @@ class Mapa(Node):
 
             # Gera um novo mapa a partir dos dados do LiDAR
             xy_resolution = 0.02  # resolução do grid
-            pmap, min_x, max_x, min_y, max_y, xy_resolution = generate_ray_casting_grid_map(ox, oy, xy_resolution)
+            pmap, min_x, max_x, min_y, max_y, _ = generate_ray_casting_grid_map(ox, oy, xy_resolution)
 
-            # Atualiza o mapa global
+            # Define o tamanho do mapa global
+            global_map_shape = (600, 1000)  # Exemplo de tamanho fixo para o mapa global
             if self.global_map is None:
-                self.global_map = pmap  # Inicializa o mapa global com o primeiro mapa
-            else:
-                # Acumula os dados do novo mapa no mapa global
-                self.global_map = np.maximum(self.global_map, pmap)
+                self.global_map = np.zeros(global_map_shape)  # Inicializa o mapa global com zeros
+
+            # Redimensiona pmap para o tamanho do mapa global
+            pmap_resized = np.zeros(global_map_shape)
+            pmap_resized[:pmap.shape[0], :pmap.shape[1]] = pmap  # Coloca o novo mapa em uma parte do mapa global
+
+            # Atualiza o mapa global usando np.maximum
+            self.global_map = np.maximum(self.global_map, pmap_resized)
 
             # Plotar o mapa global
             plt.figure(figsize=(10, 10))
