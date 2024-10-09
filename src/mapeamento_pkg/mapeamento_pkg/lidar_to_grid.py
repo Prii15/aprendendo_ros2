@@ -339,25 +339,35 @@ class mapa(Node):
     # TODO create the update function 
     def update(self):
         if self.laser is not None and self.pose is not None:
-            # Extrair a posição e orientação do robô
-            x_robot = self.pose.position.x
-            y_robot = self.pose.position.y
-            orientation = self.pose.orientation
-            _, _, yaw_robot = tf_transformations.euler_from_quaternion([orientation.x, orientation.y, orientation.z, orientation.w])
+            if self.laser is not None and self.pose is not None:
+                # Extrair a posição e orientação do robô
+                x_robot = self.pose.position.x
+                y_robot = self.pose.position.y
+                orientation = self.pose.orientation
+                _, _, yaw_robot = tf_transformations.euler_from_quaternion(
+                    [orientation.x, orientation.y, orientation.z, orientation.w])
 
-            # Calcular as coordenadas do laser em relação à posição do robô
-            ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-            oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+                # Calcular as coordenadas do laser em relação à posição do robô
+                ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+                oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
-            # Atualizar o mapa
-            pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
+                # Atualizar o mapa
+                pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
 
-            # Plotar ou processar o pmap aqui conforme necessário
-            plt.figure(figsize=(10, 10))
-            plt.imshow(pmap, cmap="PiYG_r")
-            plt.colorbar()
-            plt.title("Mapa Atualizado")
-            plt.show()
+                # Adicionar o novo mapa ao mapa existente
+                if hasattr(self, 'global_map'):
+                    # Combine pmap com global_map (por exemplo, usando lógica de ocupação)
+                    self.global_map = np.maximum(self.global_map, pmap)
+                else:
+                    # Se não existir um mapa global, inicie com o pmap
+                    self.global_map = pmap
+
+                # Plotar ou processar o mapa global aqui conforme necessário
+                plt.figure(figsize=(10, 10))
+                plt.imshow(self.global_map, cmap="PiYG_r")
+                plt.colorbar()
+                plt.title("Mapa Atualizado")
+                plt.show()
 
 
     def run(self):
