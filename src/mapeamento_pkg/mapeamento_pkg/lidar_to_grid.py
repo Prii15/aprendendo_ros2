@@ -146,7 +146,7 @@ class mapa(Node):
             oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
             # Atualizar o mapa
-            pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
+            pmap, min_x, max_x, min_y, max_y, xy_resolution = generate_ray_casting_grid_map(ox, oy, 0.02)
 
             # Adicionar o novo mapa ao mapa existente
             if hasattr(self, 'global_map'):
@@ -171,12 +171,17 @@ class mapa(Node):
         while rclpy.ok():
             rclpy.spin_once(self)
 
-            self.laser_map()
-
             # TODO create the fist map
 
             #update the map
-            self.update()    
+            self.update()   
+
+            if self.global_map is not None:
+                plt.figure(figsize=(10, 10))
+                plt.imshow(self.global_map, cmap="PiYG_r")
+                plt.colorbar()
+                plt.title("Mapa Atualizado")
+                plt.pause(0.1)  # Pause para permitir que o gráfico atualize 
 
 def main(args=None):
     rclpy.init(args=args)
