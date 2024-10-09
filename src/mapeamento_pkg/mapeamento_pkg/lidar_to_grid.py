@@ -353,7 +353,11 @@ class mapa(Node):
             pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
 
             # Plotar ou processar o pmap aqui conforme necessário
-            self.plot_map(pmap)
+            plt.figure(figsize=(10, 10))
+            plt.imshow(pmap, cmap="PiYG_r")
+            plt.colorbar()
+            plt.title("Mapa Atualizado")
+            plt.show()
 
 
     def run(self):
