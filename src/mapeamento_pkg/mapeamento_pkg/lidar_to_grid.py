@@ -1,3 +1,7 @@
+# Victor Mello Ayres 11.121.224-7
+# Pricila Vazquez 11.121.322-9
+# Nityananda Saraswati 11.120.xxx-x
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,8 +24,12 @@ import tf_transformations
 import lidar_to_grid_map as lg
 from collections import deque
 
+EXTEND_AREA = 1.0
+
+
 class mapa(Node):
-    #constructor do nó
+
+    # Construtor do nó
     def __init__(self):
         super().__init__('mapa')
         self.get_logger().debug ('Definido o nome do nó para "mapa"')
@@ -55,11 +63,12 @@ class mapa(Node):
     def listener_callback_odom(self, msg):
         self.pose = msg.pose.pose
 
-    def flood_fill(cpoint, pmap):
+    def flood_fill(self, cpoint, pmap):
         """
         cpoint: starting point (x,y) of fill
         pmap: occupancy map generated from Bresenham ray-tracing
         """
+
         # Fill empty areas with queue method
         sx, sy = pmap.shape
         fringe = deque()
@@ -88,21 +97,19 @@ class mapa(Node):
                     pmap[nx, ny + 1] = 0.0
                     fringe.appendleft((nx, ny + 1))
 
-
-    def update():
-        pass
-
-    def run(self):
-        #
+    def laser_map(self):
+        # Convert lidar data to x-y coordinates
         ox = np.sin(self.angulus) * self.distantiae
         oy = np.cos(self.angulus) * self.distantiae
 
-        #
-        plt.figure(figsize=(6,10))
-        plt.plot([oy, np.zeros(np.size(oy))], [ox, np.zeros(np.size(oy))], "ro-") # lines from 0,0 to the
+        # Plot the lidar data
+        plt.figure(figsize=(6, 10))
+        plt.plot([oy, np.zeros(np.size(oy))], [ox, np.zeros(
+            np.size(oy))], "ro-")  # lines from 0,0 to the
         plt.axis("equal")
         bottom, top = plt.ylim()  # return the current ylim
-        plt.ylim((top, bottom)) # rescale y axis, to match the grid orientation
+        # rescale y axis, to match the grid orientation
+        plt.ylim((top, bottom))
         plt.grid(True)
         plt.show()
 
@@ -112,16 +119,36 @@ class mapa(Node):
         pmap, minx, maxx, miny, maxy, xyreso = lg.generate_ray_casting_grid_map(ox, oy, xyreso, False)
         xyres = np.array(pmap).shape
 
-        #
-        plt.figure(figsize=(20,8))
+        # Plot the laser map
+        plt.figure(figsize=(20, 8))
         plt.subplot(122)
-        plt.imshow(pmap, cmap = "PiYG_r")
+        plt.imshow(pmap, cmap="PiYG_r")
         plt.clim(-0.4, 1.4)
-        plt.gca().set_xticks(np.arange(-.5, xyres[1], 1), minor = True)
-        plt.gca().set_yticks(np.arange(-.5, xyres[0], 1), minor = True)
-        plt.grid(True, which="minor", color="w", linewidth = .6, alpha = 0.5)
+        plt.gca().set_xticks(np.arange(-.5, xyres[1], 1), minor=True)
+        plt.gca().set_yticks(np.arange(-.5, xyres[0], 1), minor=True)
+        plt.grid(True, which="minor", color="w", linewidth=.6, alpha=0.5)
         plt.colorbar()
         plt.show()
+
+    def update():
+        pass
+
+
+    def run(self):
+        self.get_logger().info ('Iniciando o mapeamento do ambiente.')
+
+        # Main loop
+        while rclpy.ok():
+            rclpy.spin_once(self)
+
+            self.laser_map()
+
+            #create the fist map
+
+            #update the map
+            self.update()
+
+            
 
 def main(args=None):
     rclpy.init(args=args)
