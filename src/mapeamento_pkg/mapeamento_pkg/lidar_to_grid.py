@@ -53,6 +53,8 @@ class mapa(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
 
+        self.global_map = None  # Inicialização do mapa global
+
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
         self.distantiae = list(self.laser)
@@ -134,7 +136,6 @@ class mapa(Node):
     # TODO create the update function l
     def update(self):
         if self.laser is not None and self.pose is not None:
-            # Extrair a posição e orientação do robô
             x_robot = self.pose.position.x
             y_robot = self.pose.position.y
             orientation = self.pose.orientation
@@ -145,23 +146,22 @@ class mapa(Node):
             ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
             oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
-            # Atualizar o mapa
+            # Atualizar o mapa chamando a função importada
             pmap, min_x, max_x, min_y, max_y, xy_resolution = generate_ray_casting_grid_map(ox, oy, 0.02)
 
-            # Adicionar o novo mapa ao mapa existente
-            if hasattr(self, 'global_map'):
-                # Combine pmap com global_map 
+            # Atualizar o mapa global
+            if self.global_map is not None:
                 self.global_map = np.maximum(self.global_map, pmap)
             else:
-                # Se não existir um mapa global, inicie com o pmap
                 self.global_map = pmap
 
-            # Plotar o mapa global aqui conforme necessário
+            # Plotar o mapa global
             plt.figure(figsize=(10, 10))
             plt.imshow(self.global_map, cmap="PiYG_r")
             plt.colorbar()
             plt.title("Mapa Atualizado")
             plt.show()
+
 
 
     def run(self):
