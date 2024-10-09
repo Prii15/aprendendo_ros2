@@ -25,7 +25,7 @@ from .lidar_to_grid_map import *
 from collections import deque
 
 
-class mapa(Node):
+class Mapa(Node):
 
 
     # Construtor do nó
@@ -136,31 +136,50 @@ class mapa(Node):
     # TODO create the update function l
     def update(self):
         if self.laser is not None and self.pose is not None:
+            # Extrair a posição e orientação do robô
             x_robot = self.pose.position.x
             y_robot = self.pose.position.y
             orientation = self.pose.orientation
-            _, _, yaw_robot = tf_transformations.euler_from_quaternion(
-                [orientation.x, orientation.y, orientation.z, orientation.w])
+        
+        # Converter quaternion para yaw
+        _, _, yaw_robot = tf_transformations.euler_from_quaternion(
+            [orientation.x, orientation.y, orientation.z, orientation.w]
+        )
+        
+        # Verificar se os dados do laser estão disponíveis e válidos
+        if len(self.distantiae) == 0 or len(self.angulus) == 0:
+            print("Dados do laser estão vazios ou inválidos!")
+            return
+        
+        # Calcular as coordenadas do laser em relação à posição do robô
+        ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+        oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
-            # Calcular as coordenadas do laser em relação à posição do robô
-            ox = [x_robot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-            oy = [y_robot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+        # Log das coordenadas para debug
+        print("Coordenadas ox:", ox)
+        print("Coordenadas oy:", oy)
 
-            # Atualizar o mapa chamando a função importada
-            pmap, min_x, max_x, min_y, max_y, xy_resolution = generate_ray_casting_grid_map(ox, oy, 0.02)
+        # Gerar o mapa de ocupação usando o laser
+        pmap, min_x, max_x, min_y, max_y, xy_resolution = self.generate_ray_casting_grid_map(ox, oy, 0.02)
+        
+        # Combinar o mapa local (pmap) com o mapa global
+        if hasattr(self, 'global_map'):
+            # Atualizar o mapa global, combinando os valores de maneira ponderada
+            self.global_map = (self.global_map * 0.9) + (pmap * 0.1)
+        else:
+            # Inicializar o mapa global com o novo pmap
+            self.global_map = pmap
 
-            # Atualizar o mapa global
-            if self.global_map is not None:
-                self.global_map = np.maximum(self.global_map, pmap)
-            else:
-                self.global_map = pmap
+        # Log para verificar se o mapa global está sendo atualizado
+        print("Mapa global atualizado:")
+        print(self.global_map)
 
-            # Plotar o mapa global
-            plt.figure(figsize=(10, 10))
-            plt.imshow(self.global_map, cmap="PiYG_r")
-            plt.colorbar()
-            plt.title("Mapa Atualizado")
-            plt.show()
+        # Visualizar o mapa atualizado
+        plt.figure(figsize=(10, 10))
+        plt.imshow(self.global_map, cmap="PiYG_r")
+        plt.colorbar()
+        plt.title("Mapa Atualizado")
+        plt.show()
 
 
 
@@ -185,7 +204,7 @@ class mapa(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = mapa()
+    node = Mapa()
     try:
         node.run()
         node.destroy_node()
