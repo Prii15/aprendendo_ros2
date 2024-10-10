@@ -98,8 +98,7 @@ def atan_zero_to_twopi(y, x):
     return angle
 
 
-def init_flood_fill(center_point, obstacle_points, xy_points, min_coord,
-                    xy_resolution):
+def init_flood_fill(center_point, obstacle_points, xy_points, min_coord, xy_resolution):
     """
     center_point: center point
     obstacle_points: detected obstacles points (x,y)
@@ -238,3 +237,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
