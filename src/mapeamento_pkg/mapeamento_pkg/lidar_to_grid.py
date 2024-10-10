@@ -97,9 +97,25 @@ class Mapa(Node):
 
 
     def run(self):
-        pass
-    
+        #Inicializa o mapa
+        plt.ion() # modo interativo do matplotlib (mostra o gráfico em tempo real)
+        fig, ax = plt.subplots(figsize=(6,6))
 
+        while rclpy.ok():
+            rclpy.spin_once(self)
+        
+            #Cria o mapa do Laser Ray Tracing
+            ox = np.sin(self.angulus) * self.distantiae
+            oy = np.cos(self.angulus) * self.distantiae
+
+            #limpa o gráfico
+            ax.clear()
+
+            # Atuliza po grafico
+            ax.plot([oy, np.zeros(np.size(oy))], [ox, np.zeros(np.size(oy))], "ro-") # lines from 0,0 to the
+            ax.grid(True)
+
+            plt.pause(0.01)
 
 
 #função principal
