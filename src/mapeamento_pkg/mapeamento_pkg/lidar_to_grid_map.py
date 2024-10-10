@@ -162,14 +162,11 @@ def generate_ray_casting_grid_map(ox, oy, xy_resolution, breshen=True):
     The breshen boolean tells if it's computed with bresenham ray casting
     (True) or with flood fill (False)
     """
-    min_x, min_y, max_x, max_y, x_w, y_w = calc_grid_map_config(
-        ox, oy, xy_resolution)
+    min_x, min_y, max_x, max_y, x_w, y_w = calc_grid_map_config(ox, oy, xy_resolution)
     # default 0.5 -- [[0.5 for i in range(y_w)] for i in range(x_w)]
     occupancy_map = np.ones((x_w, y_w)) / 2
-    center_x = int(
-        round(-min_x / xy_resolution))  # center x coordinate of the grid map
-    center_y = int(
-        round(-min_y / xy_resolution))  # center y coordinate of the grid map
+    center_x = int(round(-min_x / xy_resolution))  # center x coordinate of the grid map
+    center_y = int(round(-min_y / xy_resolution))  # center y coordinate of the grid map
     # occupancy grid computed with bresenham ray casting
     if breshen:
         for (x, y) in zip(ox, oy):

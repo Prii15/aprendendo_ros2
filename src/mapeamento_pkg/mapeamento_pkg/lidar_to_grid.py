@@ -35,8 +35,6 @@ class Mapa(Node):
 
         self.get_logger().debug ('Definindo o subscriber do laser: "/scan"')
         self.laser = None
-        self.angulus = []
-        self.distantiae = []
 
         self.create_subscription(LaserScan, '/scan', self.listener_callback_laser, qos_profile)
         self.get_logger().debug ('Definindo o subscriber do laser: "/odom"')
@@ -50,6 +48,11 @@ class Mapa(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
+
+        self.angulus = []
+        self.distantiae = []
+        self.ox = []
+        self.oy = []
 
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
@@ -105,14 +108,14 @@ class Mapa(Node):
             rclpy.spin_once(self)
         
             #Cria o mapa do Laser Ray Tracing
-            ox = np.sin(self.angulus) * self.distantiae
-            oy = np.cos(self.angulus) * self.distantiae
+            self.ox = np.sin(self.angulus) * self.distantiae
+            self.oy = np.cos(self.angulus) * self.distantiae
 
             #limpa o gráfico
             ax.clear()
 
             # Atuliza po grafico
-            ax.plot([oy, np.zeros(np.size(oy))], [ox, np.zeros(np.size(oy))], "ro-") # lines from 0,0 to the
+            ax.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-") # lines from 0,0 to the
             ax.grid(True)
 
             plt.pause(0.01)
