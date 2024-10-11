@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'lidar_to_grid = mapeamento_pkg.lidar_to_grid:main',
-            #'lidar_to_grid_map = mapeamento_pkg.lidar_to_grid_map:main',
+            
+            'lidar_to_grid_map = mapeamento_pkg.lidar_to_grid_map:main',
         ],
     },
 )
