@@ -54,6 +54,9 @@ class Mapa(Node):
         self.ox = []
         self.oy = []
 
+        self.xyreso = 0.02 # x-y grid resolution #? deve ser alterado para o tamanho do robo real?
+        self.yawreso = math.radians(3.1) # yaw resolution [rad]
+
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
         self.distantiae = list(msg.ranges)
@@ -102,21 +105,45 @@ class Mapa(Node):
     def run(self):
         #Inicializa o mapa
         plt.ion() # modo interativo do matplotlib (mostra o gráfico em tempo real)
-        fig, ax = plt.subplots(figsize=(6,6))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))  # Cria subplot
 
         while rclpy.ok():
             rclpy.spin_once(self)
+
+            #posisao do robo
+            x_bot = self.pose.position.x
+            y_bot = self.pose.position.y
+            orientation = self.pose.orientation
+            _, _, yaw_robot = tf_transformations.euler_from_quaternion(
+                [orientation.x, orientation.y, orientation.z, orientation.w])
         
             #Cria o mapa do Laser Ray Tracing
             self.ox = np.sin(self.angulus) * self.distantiae
             self.oy = np.cos(self.angulus) * self.distantiae
 
-            #limpa o gráfico
-            ax.clear()
+            ox_bot = [x_bot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            oy_bot = [y_bot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
 
-            # Atuliza po grafico
-            ax.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-") # lines from 0,0 to the
-            ax.grid(True)
+
+            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(self.ox, self.oy, xyreso, False)
+            xyres = np.array(pmap).shape
+
+
+            # Atualiza o gráfico do LiDAR
+            ax1.clear()  # Limpa o gráfico anterior
+            ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
+            ax1.set_title("Dados do LiDAR")
+            ax1.grid(True)
+
+            # Atualizar o gráfico do mapa
+            self.ax2.clear()
+            self.im = self.ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
+            self.ax2.set_title("Mapa Gerado")
+            self.ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
+            plt.colorbar(self.im, ax=self.ax2)
+
+            plt.draw()
+            plt.pause(0.01)
 
             plt.pause(0.01)
 
