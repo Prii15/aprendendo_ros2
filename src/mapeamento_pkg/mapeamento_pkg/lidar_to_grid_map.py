@@ -200,4 +200,10 @@ def generate_ray_casting_grid_map(ox, oy, xy_resolution, breshen=True):
     return occupancy_map, min_x, max_x, min_y, max_y, xy_resolution
 
 
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
+
 
