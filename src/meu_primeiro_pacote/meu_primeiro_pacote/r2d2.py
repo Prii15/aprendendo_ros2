@@ -71,7 +71,7 @@ class R2D2(Node):
     
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
-       
+        
     def listener_callback_odom(self, msg):
         self.pose = msg.pose.pose
 

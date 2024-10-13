@@ -30,32 +30,36 @@ class Mapa(Node):
     def __init__(self):
         super().__init__('mapa')
         self.get_logger().debug ('Definido o nome do nó para "mapa"')
-
+        
         qos_profile = QoSProfile(depth=10, reliability = QoSReliabilityPolicy.BEST_EFFORT)
-
+        
         self.get_logger().debug ('Definindo o subscriber do laser: "/scan"')
         self.laser = None
-
+        
         self.create_subscription(LaserScan, '/scan', self.listener_callback_laser, qos_profile)
         self.get_logger().debug ('Definindo o subscriber do laser: "/odom"')
         self.pose = None
-
+        
         self.create_subscription(Odometry, '/odom', self.listener_callback_odom, qos_profile)
         self.get_logger().debug ('Definindo o publisher de controle do robo: "/cmd_Vel"')
         self.pub_cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
-
+        
         self.get_logger().info ('Definindo buffer, listener e timer para acessar as TFs.')
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
-
+        
         self.angulus = []
         self.distantiae = []
         self.ox = []
         self.oy = []
-
+        
         self.xyreso = 0.02 # x-y grid resolution #? deve ser alterado para o tamanho do robo real?
         self.yawreso = math.radians(3.1) # yaw resolution [rad]
+        
+        self.global_map = None  # Inicialização do mapa global
+        self.global_map_shape = (1000, 1000)  # Defina o tamanho do mapa global conforme necessário
+        self.xy_resolution = 0.02  # Resolução do grid
 
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
@@ -64,6 +68,18 @@ class Mapa(Node):
 
     def listener_callback_odom(self, msg):
         self.pose = msg.pose.pose
+        
+        self.pos_x = self.pose.position.x
+        self.pos_y = self.pose.position.y
+        
+        orientation = self.pose.orientation
+        _, _, self.yaw_robot = tf_transformations.euler_from_quaternion(
+            [orientation.x, orientation.y, orientation.z, orientation.w])
+        
+        # Debug: Verifica se a função é chamada e imprime os valores recebidos
+        print("Odometry callback acionado.")
+        print(f"Posição recebida: x = {self.pos_x}, y = {self.pos_y}")
+
 
     # função de callback do timer
     def on_timer(self):
@@ -103,48 +119,71 @@ class Mapa(Node):
 
 
     def run(self):
-        #Inicializa o mapa
-        plt.ion() # modo interativo do matplotlib (mostra o gráfico em tempo real)
+        # Inicializa o mapa
+        plt.ion()  # modo interativo do matplotlib (mostra o gráfico em tempo real)
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))  # Cria subplot
-
+        
         while rclpy.ok():
             rclpy.spin_once(self)
-
-            #posisao do robo
-            x_bot = self.pose.position.x
-            y_bot = self.pose.position.y
-            orientation = self.pose.orientation
-            _, _, yaw_robot = tf_transformations.euler_from_quaternion(
-                [orientation.x, orientation.y, orientation.z, orientation.w])
-        
-            #Cria o mapa do Laser Ray Tracing
+            
+            # Verificar se os dados do LiDAR estão disponíveis
+            if not self.angulus or not self.distantiae:
+                self.get_logger().warning('LiDAR data is empty. Skipping update.')
+                continue
+            
+            # Verificar se a pose do robô está disponível
+            if self.pose is None:
+                self.get_logger().warning('Robot pose is not available. Skipping update.')
+                continue
+            
+            # Cria o mapa do Laser Ray Tracing
             self.ox = np.sin(self.angulus) * self.distantiae
             self.oy = np.cos(self.angulus) * self.distantiae
-
-            ox_bot = [x_bot + r * cos(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-            oy_bot = [y_bot + r * sin(yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-
-
-            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(self.ox, self.oy, xyreso, False)
+            
+            ox_bot = [self.pos_x + r * cos(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            oy_bot = [self.pos_y + r * sin(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
+            
+            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(ox_bot, oy_bot, self.xyreso, False)
             xyres = np.array(pmap).shape
-
-
+            
+            # Inicializar o mapa global na primeira vez
+            if self.global_map is None:
+                self.global_map = np.zeros(self.global_map_shape)
+            
+            # Calcular os índices no mapa global
+            min_x_idx = int((minx - self.pos_x) / self.xy_resolution + self.global_map_shape[0] / 2)
+            max_x_idx = int((maxx - self.pos_x) / self.xy_resolution + self.global_map_shape[0] / 2)
+            min_y_idx = int((miny - self.pos_y) / self.xy_resolution + self.global_map_shape[1] / 2)
+            max_y_idx = int((maxy - self.pos_y) / self.xy_resolution + self.global_map_shape[1] / 2)
+            
+            # Garantir que os índices estejam dentro dos limites do mapa global
+            min_x_idx = max(0, min_x_idx)
+            max_x_idx = min(self.global_map_shape[0], max_x_idx)
+            min_y_idx = max(0, min_y_idx)
+            max_y_idx = min(self.global_map_shape[1], max_y_idx)
+            
+            # Ajustar as dimensões do pmap para corresponder aos índices calculados
+            pmap = pmap[:max_x_idx - min_x_idx, :max_y_idx - min_y_idx]
+            
+            # Atualizar o mapa global
+            self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx] = np.maximum(
+                self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx], pmap)
+            
             # Atualiza o gráfico do LiDAR
             ax1.clear()  # Limpa o gráfico anterior
             ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
             ax1.set_title("Dados do LiDAR")
             ax1.grid(True)
-
+            
             # Atualizar o gráfico do mapa
-            self.ax2.clear()
-            self.im = self.ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
-            self.ax2.set_title("Mapa Gerado")
-            self.ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
-            plt.colorbar(self.im, ax=self.ax2)
-
+            ax2.clear()
+            im = ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
+            ax2.set_title("Mapa Gerado")
+            ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
+            plt.colorbar(im, ax=ax2)
+            
+            
             plt.draw()
-            plt.pause(0.01)
-
             plt.pause(0.01)
 
 
