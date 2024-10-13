@@ -58,7 +58,7 @@ class Mapa(Node):
         self.yawreso = math.radians(3.1) # yaw resolution [rad]
         
         self.global_map = None  # Inicialização do mapa global
-        self.global_map_shape = (1000, 1000)  # Defina o tamanho do mapa global conforme necessário
+        self.global_map_shape = (450, 450)  # Defina o tamanho do mapa global conforme necessário
         self.xy_resolution = 0.02  # Resolução do grid
 
     def listener_callback_laser(self, msg):
@@ -180,7 +180,6 @@ class Mapa(Node):
             im = ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
             ax2.set_title("Mapa Gerado")
             ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
-            plt.colorbar(im, ax=ax2)
             
             
             plt.draw()
