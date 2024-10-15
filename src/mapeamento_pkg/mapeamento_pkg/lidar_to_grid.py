@@ -2,6 +2,7 @@
 # Pricila Vazquez 11.121.322-9
 # Nityananda Saraswati 11.120.414-5
 
+import pygame
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,7 +28,19 @@ from collections import deque
 
 class Mapa(Node):
     # Construtor do nó
-    def __init__(self):
+    def __init__(self, width, height):
+        self.window_size = (800, 800)
+
+        # Inicializa o Pygame
+        pygame.init()
+        self.screen = pygame.display.set_mode(self.window_size)
+        pygame.display.set_caption("Mapa e Dados do LiDAR")
+        
+        # Inicializa o Pygame
+        pygame.init()
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Mapa de Ocupação")
+
         super().__init__('mapa')
         self.get_logger().debug ('Definido o nome do nó para "mapa"')
         
@@ -117,11 +130,26 @@ class Mapa(Node):
             self.get_logger().info(
                 f'Could not transform left_leg_base to left_center_wheel: {ex}')
 
+    #desenha mapa
+    def draw_map(self):
+        for x in range(self.global_map.shape[0]):
+            for y in range(self.global_map.shape[1]):
+                value = self.global_map[x][y]
+                color = (255, 255, 255)  # Cor padrão: branco
+                if value == 1.0:  # Ocupado
+                    color = (255, 0, 0)  # Vermelho
+                elif value == 0.0:  # Livre
+                    color = (0, 255, 0)  # Verde
+                elif value == 0.5:  # Desconhecido
+                    color = (0, 0, 255)  # Azul
+
+                pygame.draw.rect(self.screen, color, (x * self.xy_resolution, y * self.xy_resolution, self.xy_resolution, self.xy_resolution))
+
 
     def run(self):
         # Inicializa o mapa
-        plt.ion()  # modo interativo do matplotlib (mostra o gráfico em tempo real)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))  # Cria subplot
+        clock = pygame.time.Clock()
+        running = True
         
         while rclpy.ok():
             rclpy.spin_once(self)
@@ -169,27 +197,38 @@ class Mapa(Node):
             self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx] = np.maximum(
                 self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx], pmap)
             
-            # Atualiza o gráfico do LiDAR
-            ax1.clear()  # Limpa o gráfico anterior
-            ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
-            ax1.set_title("Dados do LiDAR")
-            ax1.grid(True)
-            
-            # Atualizar o gráfico do mapa
-            ax2.clear()
-            im = ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
-            ax2.set_title("Mapa Gerado")
-            ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
-            
-            
-            plt.draw()
-            plt.pause(0.01)
+            # Limpa a tela
+            self.screen.fill((255, 255, 255))
+
+            # Desenha os dados do LiDAR
+            for angle, distance in zip(self.angulus, self.distantiae):
+                x_end = self.pos_x + distance * np.cos(angle)
+                y_end = self.pos_y + distance * np.sin(angle)
+                pygame.draw.line(self.screen, (255, 0, 0), (self.pos_x, self.pos_y), (x_end, y_end), 1)
+
+            # Desenha o mapa
+            for i in range(self.global_map.shape[0]):
+                for j in range(self.global_map.shape[1]):
+                    if self.global_map[i, j] == 1:  # área ocupada
+                        pygame.draw.rect(self.screen, (0, 0, 0), (i, j, 1, 1))
+
+            # Atualiza a tela
+            pygame.display.flip()
+            clock.tick(60)  # Limita a 60 quadros por segundo
+
+            # Verifica eventos
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+        pygame.quit()
+
 
 
 #função principal
 def main(args=None):
     rclpy.init(args=args)
-    node = Mapa()
+    node = Mapa(800, 800)  # ! cria o mapa aqui. Ajuste o tamanho conforme necessário
     try:
         node.run()
         node.destroy_node()
