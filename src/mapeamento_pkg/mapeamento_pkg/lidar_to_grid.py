@@ -137,49 +137,44 @@ class Mapa(Node):
                 continue
             
             # Cria o mapa do Laser Ray Tracing
+            # coordenada local
             self.ox = np.sin(self.angulus) * self.distantiae
             self.oy = np.cos(self.angulus) * self.distantiae
             
+            #coordenada global
             ox_bot = [self.pos_x + r * cos(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
             oy_bot = [self.pos_y + r * sin(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
             
-            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(ox_bot, oy_bot, self.xyreso, False)
-            xyres = np.array(pmap).shape
+            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(self.ox, self.oy, self.xyreso, False)
+            #pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(ox_bot, oy_bot, self.xyreso, False)
+            xyres = np.array(pmap).shape[0]
             
-            # Inicializar o mapa global na primeira vez
-            if self.global_map is None:
-                self.global_map = np.zeros(self.global_map_shape)
-            
-            # Calcular os índices no mapa global
-            min_x_idx = int((minx - self.pos_x) / self.xy_resolution + self.global_map_shape[0] / 2)
-            max_x_idx = int((maxx - self.pos_x) / self.xy_resolution + self.global_map_shape[0] / 2)
-            min_y_idx = int((miny - self.pos_y) / self.xy_resolution + self.global_map_shape[1] / 2)
-            max_y_idx = int((maxy - self.pos_y) / self.xy_resolution + self.global_map_shape[1] / 2)
-            
-            # Garantir que os índices estejam dentro dos limites do mapa global
-            min_x_idx = max(0, min_x_idx)
-            max_x_idx = min(self.global_map_shape[0], max_x_idx)
-            min_y_idx = max(0, min_y_idx)
-            max_y_idx = min(self.global_map_shape[1], max_y_idx)
-            
-            # Ajustar as dimensões do pmap para corresponder aos índices calculados
-            pmap = pmap[:max_x_idx - min_x_idx, :max_y_idx - min_y_idx]
-            
-            # Atualizar o mapa global
-            self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx] = np.maximum(
-                self.global_map[min_x_idx:max_x_idx, min_y_idx:max_y_idx], pmap)
+            # # Atualiza o gráfico do LiDAR
+            # ax1.clear()  # Limpa o gráfico anterior
+            # ax1.plot([oy_bot, np.zeros(np.size(oy_bot))], [ox_bot, np.zeros(np.size(oy_bot))], "ro-")
+            # ax1.set_title("Dados do LiDAR (Referencial Global)")
+            # ax1.grid(True)
             
             # Atualiza o gráfico do LiDAR
             ax1.clear()  # Limpa o gráfico anterior
             ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
             ax1.set_title("Dados do LiDAR")
             ax1.grid(True)
-            
-            # Atualizar o gráfico do mapa
-            ax2.clear()
-            im = ax2.imshow(self.global_map, cmap="PiYG_r", animated=True)
-            ax2.set_title("Mapa Gerado")
+
+            # Atualizar o mapa de ocupancia (pmap)
+            ax2.clear()  # Limpa o gráfico anterior
+            im = ax2.imshow(pmap, cmap="PiYG_r", origin='lower', extent=[minx, maxx, miny, maxy])
+            ax2.set_title("Mapa de Ocupação (pmap)")
             ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
+
+            # # Atualizar o gráfico do mapa
+            # ax2.clear()  # Limpa o gráfico anterior
+            # im = ax2.imshow(pmap, cmap="PiYG_r")
+            # im.set_clim(-0.4, 1.4)  # Define os limites do colormap
+            # ax2.set_xticks(np.arange(-0.5, xyres[1], 1), minor=True)  # Ticks menores no eixo x
+            # ax2.set_yticks(np.arange(-0.5, xyres[0], 1), minor=True)  # Ticks menores no eixo y
+            # ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)  # Adiciona a grade
+            # ax2.set_title("Mapa de Ocupação (pmap)")  # Título do gráfico
             
             
             plt.draw()
