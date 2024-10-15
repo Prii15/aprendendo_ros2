@@ -54,17 +54,21 @@ class Mapa(Node):
         self.ox = []
         self.oy = []
         
-        self.xyreso = 0.02 # x-y grid resolution #? deve ser alterado para o tamanho do robo real?
-        self.yawreso = math.radians(3.1) # yaw resolution [rad]
-        
-        self.global_map = None  # Inicialização do mapa global
-        self.global_map_shape = (450, 450)  # Defina o tamanho do mapa global conforme necessário
-        self.xy_resolution = 0.02  # Resolução do grid
+        # Definir as resoluções do mapa e o tamanho
+        self.map_resolution = 0.1  # Tamanho da célula (10 cm por célula)
+        self.map_size_x, self.map_size_y = 20, 20
+
+        # Inicializar o mapa de ocupação: 0.5 = desconhecido, 0 = livre, 1 = ocupado
+        self.occupancy_grid = np.full((500,500), 0.5)
 
     def listener_callback_laser(self, msg):
         self.laser = msg.ranges
         self.distantiae = list(msg.ranges)
-        self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))]
+        self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))] # retone em radianos -1.57 a 1.57
+        
+        print("Laser callback acionado.")
+        print(f"Distâncias recebidas: {self.distantiae}")
+
 
     def listener_callback_odom(self, msg):
         self.pose = msg.pose.pose
@@ -116,6 +120,32 @@ class Mapa(Node):
         except TransformException as ex:
             self.get_logger().info(
                 f'Could not transform left_leg_base to left_center_wheel: {ex}')
+            
+
+    # Função para converter coordenadas reais em índices de grade
+    def coord_to_grid(self, x, y, map_size_x, map_size_y, map_resolution):
+        grid_x = int( (x + (map_size_x/2))/map_resolution )
+        grid_y = int( (y + (map_size_y/2))/map_resolution )
+        return grid_x, grid_y
+
+    # Função para atualizar o mapa de ocupação
+    def update_occupancy_grid(self, occupancy_grid, pos_x, pos_y, ox_global, oy_global):
+        # Converta a posição do robô para índices de grade
+        robot_x_grid, robot_y_grid = self.coord_to_grid(pos_x, pos_y, self.map_size_x, self.map_size_y, self.map_resolution)
+        
+        for x_obstacle, y_obstacle in zip(ox_global, oy_global):
+            # Converta a posição do obstáculo para índices de grade
+            obs_x_grid, obs_y_grid = self.coord_to_grid(x_obstacle, y_obstacle, self.map_size_x, self.map_size_y, self.map_resolution)
+            
+            # Use o algoritmo de Bresenham para traçar uma linha do robô até o obstáculo
+            points = bresenham((robot_x_grid, robot_y_grid), (obs_x_grid, obs_y_grid))
+            
+            # Marcar as células no caminho como livres (valor 0)
+            for point in points[:-1]:  # Não incluir o último ponto (que será o obstáculo)
+                occupancy_grid[point[1], point[0]] = 0
+            
+            # Marcar o último ponto (obstáculo) como ocupado (valor 1)
+            occupancy_grid[points[-1][1], points[-1][0]] = 1
 
 
     def run(self):
@@ -145,37 +175,19 @@ class Mapa(Node):
             ox_bot = [self.pos_x + r * cos(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
             oy_bot = [self.pos_y + r * sin(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
             
-            pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(self.ox, self.oy, self.xyreso, False)
-            #pmap, minx, maxx, miny, maxy, xyreso = generate_ray_casting_grid_map(ox_bot, oy_bot, self.xyreso, False)
-            xyres = np.array(pmap).shape[0]
-            
-            # # Atualiza o gráfico do LiDAR
-            # ax1.clear()  # Limpa o gráfico anterior
-            # ax1.plot([oy_bot, np.zeros(np.size(oy_bot))], [ox_bot, np.zeros(np.size(oy_bot))], "ro-")
-            # ax1.set_title("Dados do LiDAR (Referencial Global)")
-            # ax1.grid(True)
+            self.update_occupancy_grid(self.occupancy_grid, self.pos_x, self.pos_y, ox_bot, oy_bot)
             
             # Atualiza o gráfico do LiDAR
             ax1.clear()  # Limpa o gráfico anterior
             ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
             ax1.set_title("Dados do LiDAR")
             ax1.grid(True)
-
-            # Atualizar o mapa de ocupancia (pmap)
-            ax2.clear()  # Limpa o gráfico anterior
-            im = ax2.imshow(pmap, cmap="PiYG_r", origin='lower', extent=[minx, maxx, miny, maxy])
-            ax2.set_title("Mapa de Ocupação (pmap)")
-            ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)
-
-            # # Atualizar o gráfico do mapa
-            # ax2.clear()  # Limpa o gráfico anterior
-            # im = ax2.imshow(pmap, cmap="PiYG_r")
-            # im.set_clim(-0.4, 1.4)  # Define os limites do colormap
-            # ax2.set_xticks(np.arange(-0.5, xyres[1], 1), minor=True)  # Ticks menores no eixo x
-            # ax2.set_yticks(np.arange(-0.5, xyres[0], 1), minor=True)  # Ticks menores no eixo y
-            # ax2.grid(True, which="minor", color="w", linewidth=0.6, alpha=0.5)  # Adiciona a grade
-            # ax2.set_title("Mapa de Ocupação (pmap)")  # Título do gráfico
             
+            # Atualizar o mapa de ocupancia (pmap)
+            ax2.clear()
+            ax2.imshow(self.occupancy_grid, cmap="PiYG_r", origin="lower", extent=[-self.map_size_x*self.map_resolution/2, self.map_size_x*self.map_resolution/2, -self.map_size_y*self.map_resolution/2, self.map_size_y*self.map_resolution/2])
+            ax2.set_title("Mapa de Ocupação")
+            ax2.grid(True)            
             
             plt.draw()
             plt.pause(0.01)
