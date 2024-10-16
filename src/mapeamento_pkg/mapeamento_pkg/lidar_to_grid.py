@@ -3,6 +3,7 @@
 # Nityananda Saraswati 11.120.414-5
 
 import math
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from math import cos, sin, radians, pi
@@ -29,48 +30,63 @@ class Mapa(Node):
     # Construtor do nó
     def __init__(self):
         super().__init__('mapa')
-        self.get_logger().debug ('Definido o nome do nó para "mapa"')
+
+        # Inicializar o tempo do último callback
+        self.last_laser_time = time.time()
+        self.last_odom_time = time.time()
+
+        self.get_logger().debug('Definido o nome do nó para "mapa"')
         
-        qos_profile = QoSProfile(depth=10, reliability = QoSReliabilityPolicy.BEST_EFFORT)
+        qos_profile = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.BEST_EFFORT)
         
-        self.get_logger().debug ('Definindo o subscriber do laser: "/scan"')
+        self.get_logger().debug('Definindo o subscriber do laser: "/scan"')
         self.laser = None
         
+        # Ajustando a assinatura para usar create_subscription diretamente
         self.create_subscription(LaserScan, '/scan', self.listener_callback_laser, qos_profile)
-        self.get_logger().debug ('Definindo o subscriber do laser: "/odom"')
+        
+        self.get_logger().debug('Definindo o subscriber do odometry: "/odom"')
         self.pose = None
         
+        # Ajustando a assinatura para usar create_subscription diretamente
         self.create_subscription(Odometry, '/odom', self.listener_callback_odom, qos_profile)
-        self.get_logger().debug ('Definindo o publisher de controle do robo: "/cmd_Vel"')
+
+        self.get_logger().debug('Definindo o publisher de controle do robô: "/cmd_vel"')
         self.pub_cmd_vel = self.create_publisher(Twist, '/cmd_vel', 10)
         
-        self.get_logger().info ('Definindo buffer, listener e timer para acessar as TFs.')
+        self.get_logger().info('Definindo buffer, listener e timer para acessar as TFs.')
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
         
         self.angulus = []
         self.distantiae = []
-        self.ox = []
-        self.oy = []
         
         # Definir as resoluções do mapa e o tamanho
         self.map_resolution = 0.1  # Tamanho da célula (10 cm por célula)
         self.map_size_x, self.map_size_y = 20, 20
 
         # Inicializar o mapa de ocupação: 0.5 = desconhecido, 0 = livre, 1 = ocupado
-        self.occupancy_grid = np.full((500,500), 0.5)
+        self.occupancy_grid = np.full((300, 300), 0.5)
 
     def listener_callback_laser(self, msg):
+        current_time = time.time()
+        laser_frequency = 1.0 / (current_time - self.last_laser_time)  # Calcular a frequência em Hz
+        self.last_laser_time = current_time  # Atualizar o último tempo do callback
+
+        self.get_logger().info(f'Callback do Laser acionado. Frequência: {laser_frequency:.2f} Hz')
+        
         self.laser = msg.ranges
         self.distantiae = list(msg.ranges)
-        self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))] # retone em radianos -1.57 a 1.57
-        
-        print("Laser callback acionado.")
-        print(f"Distâncias recebidas: {self.distantiae}")
-
+        self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))]  # Retorna em radianos -1.57 a 1.57
 
     def listener_callback_odom(self, msg):
+        current_time = time.time()
+        odom_frequency = 1.0 / (current_time - self.last_odom_time)  # Calcular a frequência em Hz
+        self.last_odom_time = current_time  # Atualizar o último tempo do callback
+
+        self.get_logger().info(f'Callback do Odometry acionado. Frequência: {odom_frequency:.2f} Hz')
+        
         self.pose = msg.pose.pose
         
         self.pos_x = self.pose.position.x
@@ -83,9 +99,9 @@ class Mapa(Node):
         # Debug: Verifica se a função é chamada e imprime os valores recebidos
         print("Odometry callback acionado.")
         print(f"Posição recebida: x = {self.pos_x}, y = {self.pos_y}")
+        print(f"Orientação recebida: yaw = {self.yaw_robot}")
 
-
-    # função de callback do timer
+    # Função de callback do timer
     def on_timer(self):
         try:
             self.tf_right = self.tf_buffer.lookup_transform(
@@ -97,12 +113,10 @@ class Mapa(Node):
                 [self.tf_right.transform.rotation.x, self.tf_right.transform.rotation.y, 
                 self.tf_right.transform.rotation.z, self.tf_right.transform.rotation.w])
             
-            self.get_logger().info(
-                f'yaw right_leg_base to right_center_wheel: {self.right_yaw}')
+            self.get_logger().info(f'yaw right_leg_base to right_center_wheel: {self.right_yaw}')
             
         except TransformException as ex:
-            self.get_logger().info(
-                f'Could not transform right_leg_base to right_center_wheel: {ex}')
+            self.get_logger().info(f'Could not transform right_leg_base to right_center_wheel: {ex}')
             
         try:
             self.tf_left = self.tf_buffer.lookup_transform(
@@ -114,18 +128,15 @@ class Mapa(Node):
                 [self.tf_left.transform.rotation.x, self.tf_left.transform.rotation.y,
                 self.tf_left.transform.rotation.z, self.tf_left.transform.rotation.w])
             
-            self.get_logger().info(
-                f'yaw left_leg_base to left_center_wheel: {self.left_yaw}')
+            self.get_logger().info(f'yaw left_leg_base to left_center_wheel: {self.left_yaw}')
             
         except TransformException as ex:
-            self.get_logger().info(
-                f'Could not transform left_leg_base to left_center_wheel: {ex}')
-            
+            self.get_logger().info(f'Could not transform left_leg_base to left_center_wheel: {ex}')
 
     # Função para converter coordenadas reais em índices de grade
     def coord_to_grid(self, x, y, map_size_x, map_size_y, map_resolution):
-        grid_x = int( (x + (map_size_x/2))/map_resolution )
-        grid_y = int( (y + (map_size_y/2))/map_resolution )
+        grid_x = int((x + (map_size_x / 2)) / map_resolution)
+        grid_y = int((y + (map_size_y / 2)) / map_resolution)
         return grid_x, grid_y
 
     # Função para atualizar o mapa de ocupação
@@ -147,53 +158,54 @@ class Mapa(Node):
             # Marcar o último ponto (obstáculo) como ocupado (valor 1)
             occupancy_grid[points[-1][1], points[-1][0]] = 1
 
-
     def run(self):
-        # Inicializa o mapa
-        plt.ion()  # modo interativo do matplotlib (mostra o gráfico em tempo real)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))  # Cria subplot
-        
+        plt.ion()  # modo interativo do matplotlib
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))
+
         while rclpy.ok():
             rclpy.spin_once(self)
-            
-            # Verificar se os dados do LiDAR estão disponíveis
+
             if not self.angulus or not self.distantiae:
                 self.get_logger().warning('LiDAR data is empty. Skipping update.')
                 continue
-            
-            # Verificar se a pose do robô está disponível
+
             if self.pose is None:
                 self.get_logger().warning('Robot pose is not available. Skipping update.')
                 continue
-            
-            # Cria o mapa do Laser Ray Tracing
-            # coordenada local
-            self.ox = np.sin(self.angulus) * self.distantiae
-            self.oy = np.cos(self.angulus) * self.distantiae
-            
-            #coordenada global
-            ox_bot = [self.pos_x + r * cos(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-            oy_bot = [self.pos_y + r * sin(self.yaw_robot + angle) for r, angle in zip(self.distantiae, self.angulus)]
-            
-            self.update_occupancy_grid(self.occupancy_grid, self.pos_x, self.pos_y, ox_bot, oy_bot)
-            
-            # Atualiza o gráfico do LiDAR
-            ax1.clear()  # Limpa o gráfico anterior
-            ax1.plot([self.oy, np.zeros(np.size(self.oy))], [self.ox, np.zeros(np.size(self.oy))], "ro-")  # Plota os dados do LiDAR
+
+            # coordenadas locais
+            ox_local = [r * sin(angle) for r, angle in zip(self.distantiae, self.angulus)]
+            oy_local = [r * cos(angle) for r, angle in zip(self.distantiae, self.angulus)]
+
+            # coordenadas globais
+            ox_global = [
+                self.pos_x + x * cos(self.yaw_robot) - y * sin(self.yaw_robot) 
+                for x, y in zip(ox_local, oy_local)
+            ]
+            oy_global = [
+                self.pos_y + x * sin(self.yaw_robot) + y * cos(self.yaw_robot) 
+                for x, y in zip(ox_local, oy_local)
+            ]
+
+            self.update_occupancy_grid(self.occupancy_grid, self.pos_x, self.pos_y, ox_global, oy_global)
+
+            ax1.clear()
+            ax1.plot([oy_local, np.zeros(np.size(oy_local))], [ox_local, np.zeros(np.size(oy_local))], "ro-")
             ax1.set_title("Dados do LiDAR")
             ax1.grid(True)
-            
-            # Atualizar o mapa de ocupancia (pmap)
+
             ax2.clear()
-            ax2.imshow(self.occupancy_grid, cmap="PiYG_r", origin="lower", extent=[-self.map_size_x*self.map_resolution/2, self.map_size_x*self.map_resolution/2, -self.map_size_y*self.map_resolution/2, self.map_size_y*self.map_resolution/2])
+            ax2.imshow(self.occupancy_grid, cmap="PiYG_r", origin="lower",
+                       extent=[-self.map_size_x * self.map_resolution / 2, self.map_size_x * self.map_resolution / 2,
+                               -self.map_size_y * self.map_resolution / 2, self.map_size_y * self.map_resolution / 2])
             ax2.set_title("Mapa de Ocupação")
-            ax2.grid(True)            
-            
+            ax2.grid(True)
+
             plt.draw()
             plt.pause(0.01)
 
 
-#função principal
+# Função principal
 def main(args=None):
     rclpy.init(args=args)
     node = Mapa()
@@ -204,6 +216,7 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
 
-#chamada da função principal
+
+# Chamada da função principal
 if __name__ == '__main__':
-    main() 
+    main()
