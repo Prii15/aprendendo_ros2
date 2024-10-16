@@ -2,11 +2,9 @@
 # Pricila Vazquez 11.121.322-9
 # Nityananda Saraswati 11.120.414-5
 
-import math
-import time
 import numpy as np
 import matplotlib.pyplot as plt
-from math import cos, sin, radians, pi
+from math import cos, sin
 
 import rclpy
 from rclpy.node import Node
@@ -30,10 +28,6 @@ class Mapa(Node):
     # Construtor do nó
     def __init__(self):
         super().__init__('mapa')
-
-        # Inicializar o tempo do último callback
-        self.last_laser_time = time.time()
-        self.last_odom_time = time.time()
 
         self.get_logger().debug('Definido o nome do nó para "mapa"')
         
@@ -70,25 +64,18 @@ class Mapa(Node):
         self.occupancy_grid = np.full((300, 300), 0.5)
 
     def listener_callback_laser(self, msg):
-        current_time = time.time()
-        laser_frequency = 1.0 / (current_time - self.last_laser_time)  # Calcular a frequência em Hz
-        self.last_laser_time = current_time  # Atualizar o último tempo do callback
-
-        self.get_logger().info(f'Callback do Laser acionado. Frequência: {laser_frequency:.2f} Hz')
+        # time_stamp = msg.header.stamp
+        # self.get_logger().info(f'lidar Timestemp: {time_stamp}')
         
         self.laser = msg.ranges
         self.distantiae = list(msg.ranges)
         self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))]  # Retorna em radianos -1.57 a 1.57
 
     def listener_callback_odom(self, msg):
-        current_time = time.time()
-        odom_frequency = 1.0 / (current_time - self.last_odom_time)  # Calcular a frequência em Hz
-        self.last_odom_time = current_time  # Atualizar o último tempo do callback
-
-        self.get_logger().info(f'Callback do Odometry acionado. Frequência: {odom_frequency:.2f} Hz')
+        # time_stamp = msg.header.stamp
+        # self.get_logger().info(f'odom Timestemp: {time_stamp}')
         
         self.pose = msg.pose.pose
-        
         self.pos_x = self.pose.position.x
         self.pos_y = self.pose.position.y
         
@@ -174,23 +161,17 @@ class Mapa(Node):
                 continue
 
             # coordenadas locais
-            ox_local = [r * sin(angle) for r, angle in zip(self.distantiae, self.angulus)]
-            oy_local = [r * cos(angle) for r, angle in zip(self.distantiae, self.angulus)]
+            x_local = [ox * np.cos(oy) for ox, oy in zip(self.distantiae, self.angulus)]
+            y_local = [ox * np.sin(oy) for ox, oy in zip(self.distantiae, self.angulus)]
 
             # coordenadas globais
-            ox_global = [
-                self.pos_x + x * cos(self.yaw_robot) - y * sin(self.yaw_robot) 
-                for x, y in zip(ox_local, oy_local)
-            ]
-            oy_global = [
-                self.pos_y + x * sin(self.yaw_robot) + y * cos(self.yaw_robot) 
-                for x, y in zip(ox_local, oy_local)
-            ]
-
+            ox_global = [np.sin(ang) * dist + self.pos_x for ang, dist in zip(self.angulus, self.distantiae)]
+            oy_global = [np.cos(ang) * dist + self.pos_y for ang, dist in zip(self.angulus, self.distantiae)]
+            
             self.update_occupancy_grid(self.occupancy_grid, self.pos_x, self.pos_y, ox_global, oy_global)
 
             ax1.clear()
-            ax1.plot([oy_local, np.zeros(np.size(oy_local))], [ox_local, np.zeros(np.size(oy_local))], "ro-")
+            ax1.plot([y_local, np.zeros(np.size(y_local))], [x_local, np.zeros(np.size(y_local))], "ro-")
             ax1.set_title("Dados do LiDAR")
             ax1.grid(True)
 
