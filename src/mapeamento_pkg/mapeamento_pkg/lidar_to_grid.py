@@ -1,7 +1,5 @@
-# Victor Mello Ayres 11.121.224-7
-# Pricila Vazquez 11.121.322-9
-# Nityananda Saraswati 11.120.414-5
 
+#? BIBLIOTECAS 
 import numpy as np
 import matplotlib.pyplot as plt
 from math import cos, sin
@@ -24,25 +22,24 @@ from .lidar_to_grid_map import *
 from collections import deque
 
 
+#? Classe principal (MAPA)
 class Mapa(Node):
-    # Construtor do nó
+    #? Construtor do nó
     def __init__(self):
         super().__init__('mapa')
-
+        
         self.get_logger().debug('Definido o nome do nó para "mapa"')
         
         qos_profile = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.BEST_EFFORT)
         
+        #? Ajustando a assinatura para usar create_subscription diretamente
         self.get_logger().debug('Definindo o subscriber do laser: "/scan"')
         self.laser = None
-        
-        # Ajustando a assinatura para usar create_subscription diretamente
         self.create_subscription(LaserScan, '/scan', self.listener_callback_laser, qos_profile)
         
+        #? Ajustando a assinatura para usar create_subscription diretamente
         self.get_logger().debug('Definindo o subscriber do odometry: "/odom"')
         self.pose = None
-        
-        # Ajustando a assinatura para usar create_subscription diretamente
         self.create_subscription(Odometry, '/odom', self.listener_callback_odom, qos_profile)
 
         self.get_logger().debug('Definindo o publisher de controle do robô: "/cmd_vel"')
@@ -53,35 +50,43 @@ class Mapa(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.timer = self.create_timer(0.1, self.on_timer)
         
-        self.angulus = []
-        self.distantiae = []
+        #? Variaveis globais 
+        self.angulus = []       # lista com os valorem dos angulos dos feixes do lidar.
+        self.distantiae = []    # lista com as distancia obtidas de cada feixe.
         
-        # Definir as resoluções do mapa e o tamanho
-        self.map_resolution = 0.1  # Tamanho da célula (10 cm por célula)
-        self.map_size_x, self.map_size_y = 20, 20
+        #? Definir as resoluções do mapa e o tamanho
+        self.map_resolution = 0.1                   # Tamanho da célula (10 cm por célula)
+        self.map_size_x, self.map_size_y = 20, 20   # Numero de celulas 
 
-        # Inicializar o mapa de ocupação: 0.5 = desconhecido, 0 = livre, 1 = ocupado
-        self.occupancy_grid = np.full((300, 300), 0.5)
+        #? Inicializar o mapa de ocupação: 
+        self.occupancy_grid = np.full((210, 210), 0.5)  # 0.5 = desconhecido, 0 = livre, 1 = ocupado
 
+        #? Criando os graficos para plotagem
+        plt.ion()  # modo interativo do matplotlib
+        self.fig, (self.ax_lidar, self.ax_map) = plt.subplots(1, 2, figsize=(10, 5))
+
+    #? Processar a mensagem do laser_scan (LIDAR)
     def listener_callback_laser(self, msg):
-        # time_stamp = msg.header.stamp
-        # self.get_logger().info(f'lidar Timestemp: {time_stamp}')
+        #// time_stamp = msg.header.stamp
+        #// self.get_logger().info(f'lidar Timestemp: {time_stamp}')
         
         self.laser = msg.ranges
         self.distantiae = list(msg.ranges)
         self.angulus = [msg.angle_min + i * msg.angle_increment for i in range(len(self.distantiae))]  # Retorna em radianos -1.57 a 1.57
 
+    #? Processar a mensagem do odom (ODOMETRIA)
     def listener_callback_odom(self, msg):
-        # time_stamp = msg.header.stamp
-        # self.get_logger().info(f'odom Timestemp: {time_stamp}')
+        #// time_stamp = msg.header.stamp
+        #// self.get_logger().info(f'odom Timestemp: {time_stamp}')
         
         self.pose = msg.pose.pose
-        self.pos_x = self.pose.position.x
-        self.pos_y = self.pose.position.y
+
+        self.pos_x = self.pose.position.x       # retorna a posicao X
+        self.pos_y = self.pose.position.y       # retorna a posicao Y
         
-        orientation = self.pose.orientation
-        _, _, self.yaw_robot = tf_transformations.euler_from_quaternion(
-            [orientation.x, orientation.y, orientation.z, orientation.w])
+        # retorna a orientacao do robo (YAW, PITCH, ROLL)
+        orientation = [self.pose.orientation.x, self.pose.orientation.y, self.pose.orientation.z, self.pose.orientation.w]
+        _, _, self.yaw_robot = tf_transformations.euler_from_quaternion(orientation)
         
         # Debug: Verifica se a função é chamada e imprime os valores recebidos
         print("Odometry callback acionado.")
@@ -119,39 +124,45 @@ class Mapa(Node):
             
         except TransformException as ex:
             self.get_logger().info(f'Could not transform left_leg_base to left_center_wheel: {ex}')
-
-    # Função para converter coordenadas reais em índices de grade
-    def coord_to_grid(self, x, y, map_size_x, map_size_y, map_resolution):
-        grid_x = int((x + (map_size_x / 2)) / map_resolution)
-        grid_y = int((y + (map_size_y / 2)) / map_resolution)
+    
+    #? Função para converter coordenadas reais em índices de grade
+    def coord_to_grid(self, x, y):
+        # O centro do mapa é a célula no meio da matriz (105, 105).
+        grid_x = int((x / self.map_resolution) + self.occupancy_grid.shape[0] // 2)
+        grid_y = int((y / self.map_resolution) + self.occupancy_grid.shape[1] // 2)
         return grid_x, grid_y
-
-    # Função para atualizar o mapa de ocupação
+    
+    #? Função para atulizar o mapa de ocupancia com base nos coordenadas dos pontos de obstaculo
     def update_occupancy_grid(self, occupancy_grid, pos_x, pos_y, ox_global, oy_global):
-        # Converta a posição do robô para índices de grade
-        robot_x_grid, robot_y_grid = self.coord_to_grid(pos_x, pos_y, self.map_size_x, self.map_size_y, self.map_resolution)
+
+        robot_x_grid, robot_y_grid = self.coord_to_grid(pos_x, pos_y) # Converta a posição do robô para índices de grade
         
         for x_obstacle, y_obstacle in zip(ox_global, oy_global):
-            # Converta a posição do obstáculo para índices de grade
-            obs_x_grid, obs_y_grid = self.coord_to_grid(x_obstacle, y_obstacle, self.map_size_x, self.map_size_y, self.map_resolution)
-            
-            # Use o algoritmo de Bresenham para traçar uma linha do robô até o obstáculo
-            points = bresenham((robot_x_grid, robot_y_grid), (obs_x_grid, obs_y_grid))
-            
-            # Marcar as células no caminho como livres (valor 0)
-            for point in points[:-1]:  # Não incluir o último ponto (que será o obstáculo)
-                occupancy_grid[point[1], point[0]] = 0
-            
-            # Marcar o último ponto (obstáculo) como ocupado (valor 1)
-            occupancy_grid[points[-1][1], points[-1][0]] = 1
+
+            #? Aplicar filtro de limite de -10 a 10 nas coordenadas globais
+            if -10 <= x_obstacle <= 10 and -10 <= y_obstacle <= 10:
+                
+                obs_x_grid, obs_y_grid = self.coord_to_grid(x_obstacle, y_obstacle) # Converta a posição do obstáculo para índices de grade
+                
+                #? Verifique se os índices estão dentro dos limites da grade
+                if 0 <= obs_x_grid < occupancy_grid.shape[1] and 0 <= obs_y_grid < occupancy_grid.shape[0]:
+                    
+                    points = bresenham((robot_x_grid, robot_y_grid), (obs_x_grid, obs_y_grid)) # Use o algoritmo de Bresenham para traçar uma linha do robô até o obstáculo
+                    
+                    #? Marcar as células no caminho como livres (valor 0)
+                    for point in points[:-1]:  # Não incluir o último ponto (que será o obstáculo)
+                        if 0 <= point[0] < occupancy_grid.shape[1] and 0 <= point[1] < occupancy_grid.shape[0]:
+                            occupancy_grid[point[1], point[0]] = 0
+                    
+                    #? Marcar o último ponto (obstáculo) como ocupado (valor 1)
+                    occupancy_grid[points[-1][1], points[-1][0]] = 1
 
     def run(self):
-        plt.ion()  # modo interativo do matplotlib
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12))
 
         while rclpy.ok():
             rclpy.spin_once(self)
 
+            #? Verificar se os dados do LiDAR e da pose estão disponíveis
             if not self.angulus or not self.distantiae:
                 self.get_logger().warning('LiDAR data is empty. Skipping update.')
                 continue
@@ -160,33 +171,38 @@ class Mapa(Node):
                 self.get_logger().warning('Robot pose is not available. Skipping update.')
                 continue
 
+            #? CÁLCULO DAS COORDENADAS
             # coordenadas locais
-            x_local = [ox * np.cos(oy) for ox, oy in zip(self.distantiae, self.angulus)]
-            y_local = [ox * np.sin(oy) for ox, oy in zip(self.distantiae, self.angulus)]
+            x_local = np.array(self.distantiae) * np.cos(self.angulus)
+            y_local = np.array(self.distantiae) * np.sin(self.angulus)
 
             # coordenadas globais
-            ox_global = [np.sin(ang) * dist + self.pos_x for ang, dist in zip(self.angulus, self.distantiae)]
-            oy_global = [np.cos(ang) * dist + self.pos_y for ang, dist in zip(self.angulus, self.distantiae)]
+            ox_global = self.pos_x + (x_local * np.cos(self.yaw_robot) - y_local * np.sin(self.yaw_robot))      
+            oy_global = self.pos_y + (x_local * np.sin(self.yaw_robot) + y_local * np.cos(self.yaw_robot))
             
+            # Atuliza o mapa de ocupancia
             self.update_occupancy_grid(self.occupancy_grid, self.pos_x, self.pos_y, ox_global, oy_global)
 
-            ax1.clear()
-            ax1.plot([y_local, np.zeros(np.size(y_local))], [x_local, np.zeros(np.size(y_local))], "ro-")
-            ax1.set_title("Dados do LiDAR")
-            ax1.grid(True)
-
-            ax2.clear()
-            ax2.imshow(self.occupancy_grid, cmap="PiYG_r", origin="lower",
+            #? PLOTAGEM DOS MAPAS
+            # "visao" do lidar
+            self.ax_lidar.clear()
+            self.ax_lidar.plot([y_local, np.zeros(np.size(y_local))], [x_local, np.zeros(np.size(y_local))], "ro-")
+            self.ax_lidar.set_title("Dados do LiDAR")
+            self.ax_lidar.grid(True)
+            
+            #mapa de ocupancia
+            self.ax_map.clear()
+            self.ax_map.imshow(self.occupancy_grid, cmap="PiYG_r", origin="lower",
                        extent=[-self.map_size_x * self.map_resolution / 2, self.map_size_x * self.map_resolution / 2,
                                -self.map_size_y * self.map_resolution / 2, self.map_size_y * self.map_resolution / 2])
-            ax2.set_title("Mapa de Ocupação")
-            ax2.grid(True)
-
+            self.ax_map.grid(True)
+            self.ax_map.set_title("Mapa de Ocupação")
+            
             plt.draw()
             plt.pause(0.01)
 
 
-# Função principal
+#? Função principal
 def main(args=None):
     rclpy.init(args=args)
     node = Mapa()
